@@ -1,4 +1,24 @@
--- In this SQL file, write (and comment!) the schema of your database, including the CREATE TABLE, CREATE INDEX, CREATE VIEW, etc. statements that compose it
+-- Indexes
+-- For finding workouts by user
+CREATE INDEX idx_workout_templates_user_id ON workout_templates(user_id);
+CREATE INDEX idx_workout_sessions_user_id ON workout_sessions(user_id);
+
+-- For looking up exercises in a template or session
+CREATE INDEX idx_template_exercises_template_id ON template_exercises(workout_template_id);
+CREATE INDEX idx_template_exercises_exercise_id ON template_exercises(exercise_id);
+CREATE INDEX idx_session_exercises_session_id ON session_exercises(workout_session_id);
+CREATE INDEX idx_session_exercises_exercise_id ON session_exercises(exercise_id);
+
+-- For quickly retrieving sets within a session exercise
+CREATE INDEX idx_exercise_sets_session_exercise_id ON exercise_sets(session_exercise_id);
+
+-- For quickly retrieving body weight entries for a user
+CREATE INDEX idx_body_weights_user_id_recorded_at ON body_weights(user_id, recorded_at DESC);
+
+-- For filtering or joining muscle groups
+CREATE INDEX idx_exercise_muscle_groups_exercise_id ON exercise_muscle_groups(exercise_id);
+CREATE INDEX idx_exercise_muscle_groups_muscle_group_id ON exercise_muscle_groups(muscle_group_id);
+
 
 -- Tables
 CREATE EXTENSION IF NOT EXISTS citext;
@@ -77,10 +97,6 @@ CREATE TABLE body_weights (
   weight_kg NUMERIC(5,2) NOT NULL CHECK (weight_kg > 0),
   recorded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-
-
-
-
 
 
 -- Triggers
