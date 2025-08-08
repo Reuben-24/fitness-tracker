@@ -1,4 +1,4 @@
-const db = require("../db");
+const db = require("../pool");
 const { buildInsertQuery, buildUpdateQuery } = require("../utils");
 
 class Exercise {
