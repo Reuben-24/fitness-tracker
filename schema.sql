@@ -19,6 +19,9 @@ CREATE INDEX idx_body_weights_user_id_recorded_at ON body_weights(user_id, recor
 CREATE INDEX idx_exercise_muscle_groups_exercise_id ON exercise_muscle_groups(exercise_id);
 CREATE INDEX idx_exercise_muscle_groups_muscle_group_id ON exercise_muscle_groups(muscle_group_id);
 
+-- For filtering and sorted by session started at time
+CREATE INDEX idx_workout_sessions_started_at ON workout_sessions(started_at);
+
 
 -- Tables
 CREATE EXTENSION IF NOT EXISTS citext;
