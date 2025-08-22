@@ -1,5 +1,5 @@
 const db = require("../pool");
-const { buildInsertQuery, buildUpdateQuery } = require("../utils");
+const { buildInsertQuery, buildUpdateQuery } = require("./utils");
 
 class BodyWeight {
   async getAllByUserId(user_id) {

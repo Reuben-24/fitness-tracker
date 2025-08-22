@@ -1,5 +1,5 @@
 const db = require("../pool");
-const { buildInsertQuery, buildUpdateQuery } = require("../utils");
+const { buildInsertQuery, buildUpdateQuery } = require("./utils");
 
 class MuscleGroup {
   async getById(id) {
