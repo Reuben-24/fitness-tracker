@@ -3,6 +3,7 @@ const path = require("path");
 require("dotenv").config();
 
 const usersRouter = require("./routes/usersRouter.js")
+const exercisesRouter = require("./routes/exercisesRouter.js")
 
 app = express();
 
@@ -13,6 +14,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/users", usersRouter);
+app.use("/users/:userId/exercises", exercisesRouter)
 
 // Centralized error handler
 app.use((err, req, res, next) => {

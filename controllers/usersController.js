@@ -36,7 +36,6 @@ exports.read = async (req, res) => {
 
   if (!existingUser) {
     return res.status(404).json({
-      success: false,
       error: "User not found",
     });
   }
@@ -66,7 +65,6 @@ exports.update = async (req, res) => {
 
   if (!updatedUser) {
     return res.status(404).json({
-      success: false,
       error: "User not found",
     });
   }
@@ -83,7 +81,6 @@ exports.delete = async (req, res) => {
 
   if (!deletedUser) {
     return res.status(404).json({
-      success: false,
       error: "User not found",
     });
   }
