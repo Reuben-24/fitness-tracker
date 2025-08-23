@@ -100,6 +100,16 @@ class Exercise {
     }
   }
 
+  async removeMuscleGroup(exerciseId, muscleGroupId) {
+    const query = `
+      DELETE FROM exercise_muscle_groups
+      WHERE exercise_id = $1 AND muscle_group_id = $2
+    `;
+    const values = [exerciseId, muscleGroupId];
+
+    const result = await db.query(query, values);
+    return result; // result.rowCount tells you how many rows were deleted
+  }
 }
 
 module.exports = new Exercise();
