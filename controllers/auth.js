@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const refreshToken = require("../models/RefreshToken");
+const user = require("../models/User");
 
 exports.login = async (req, res) => {
   // TODO add input validation/sanitisation/rehydration/etc.
@@ -16,17 +17,25 @@ exports.login = async (req, res) => {
   const isValid = await bcrypt.compare(password, existingUser.password_hash);
   if (!isValid) return res.status(401).json({ error: "Invalid credentials" });
 
-  // Sign JWT
+  // Sign access token
   const token = jwt.sign({ userId: existingUser.id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
-  // Refresh token
+  // Sign refresh token
   const newRefreshToken = jwt.sign(
     { userId: existingUser.id },
     process.env.JWT_REFRESH_SECRET,
-    { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN },
+    { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN }
   );
+
+  const expiresInSec = parseInt(process.env.JWT_REFRESH_EXPIRES_IN); // e.g., 7 * 24 * 3600
+  const expiresAt = new Date(Date.now() + expiresInSec * 1000);
+
+  const saltRounds = 10;
+  const tokenHash = await bcrypt.hash(newRefreshToken, saltRounds);
+
+  await refreshToken.save(existingUser.id, tokenHash, expiresAt);
 
   res.json({ token, newRefreshToken });
 };
@@ -70,7 +79,7 @@ exports.refreshToken = async (req, res) => {
 
   const payload = jwt.verify(
     existingRefreshToken,
-    process.env.JWT_REFRESH_SECRET,
+    process.env.JWT_REFRESH_SECRET
   );
 
   // Get all stored refresh tokens for this user

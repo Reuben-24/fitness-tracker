@@ -1,15 +1,13 @@
 const { Router } = require("express");
-const asyncErrorHandler = require("../utils/asyncHandler");
+const asyncErrorHandler = require("../middleware/asyncErrorHandler");
 const auth = require("../middleware/authenticate");
 const controller = require("../controllers/users");
 
 const router = Router();
 
-router.use(auth);
-
 router.post("/", asyncErrorHandler(controller.create));
-router.get("/:userId", asyncErrorHandler(controller.read));
-router.patch("/:userId", asyncErrorHandler(controller.update));
-router.delete("/:userId", asyncErrorHandler(controller.delete));
+router.get("/:userId", auth, asyncErrorHandler(controller.read));
+router.patch("/:userId", auth, asyncErrorHandler(controller.update));
+router.delete("/:userId", auth, asyncErrorHandler(controller.delete));
 
 module.exports = router;

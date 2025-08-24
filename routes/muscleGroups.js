@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const asyncErrorHandler = require("../utils/asyncHandler");
+const asyncErrorHandler = require("../middleware/asyncErrorHandler");
 const auth = require("../middleware/authenticate");
 const controller = require("../controllers/muscleGroups");
 
