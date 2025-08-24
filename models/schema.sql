@@ -13,6 +13,13 @@ CREATE TABLE users (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+CREATE TABLE refresh_tokens (
+  id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  token_hash TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  expires_at TIMESTAMP
+);
 CREATE TABLE exercises (
   id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -134,3 +141,6 @@ CREATE INDEX idx_exercise_muscle_groups_muscle_group_id ON exercise_muscle_group
 
 -- For filtering and sorted by session started at time
 CREATE INDEX idx_workout_sessions_started_at ON workout_sessions(started_at);
+
+-- For finding refresh tokens by user
+CREATE INDEX idx_refresh_tokens_user_id ON refresh_tokens(user_id);
