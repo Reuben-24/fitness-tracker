@@ -41,11 +41,16 @@ exports.update = async (req, res) => {
   const { userId, muscleGroupId } = req.params;
   const fieldsToUpdate = { ...req.body };
 
-  const updatedMuscleGroup = await muscleGroup.update(muscleGroupId, fieldsToUpdate);
+  const existingMuscleGroup = await muscleGroup.getById(muscleGroupId);
 
-  if (!updatedMuscleGroup || updatedMuscleGroup.user_id !== Number(userId)) {
+  if (!existingMuscleGroup || existingMuscleGroup.user_id !== Number(userId)) {
     return res.status(404).json({ error: "Muscle Group not found" });
   }
+
+  const updatedMuscleGroup = await muscleGroup.update(
+    muscleGroupId,
+    fieldsToUpdate,
+  );
 
   res.status(200).json({
     message: "Muscle Group successfully updated",
@@ -65,6 +70,6 @@ exports.delete = async (req, res) => {
 
   res.status(200).json({
     message: "Muscle Group successfully deleted",
-    muscleGroup: deletedMuscleGroup
-  })
-}
+    muscleGroup: deletedMuscleGroup,
+  });
+};

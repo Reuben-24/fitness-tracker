@@ -29,7 +29,7 @@ class User {
   async delete(id) {
     const result = await db.query(
       "DELETE FROM users WHERE id = $1 RETURNING *",
-      [id]
+      [id],
     );
     return result.rows[0];
   }

@@ -56,7 +56,7 @@ exports.update = async (req, res) => {
     const saltRounds = 10;
     fieldsToUpdate.password_hash = await bcrypt.hash(
       fieldsToUpdate.password,
-      saltRounds
+      saltRounds,
     );
     delete fieldsToUpdate.password; // remove plain password
   }
@@ -89,4 +89,4 @@ exports.delete = async (req, res) => {
     message: "User successfully deleted",
     user: deletedUser,
   });
-}
+};

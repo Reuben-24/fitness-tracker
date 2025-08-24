@@ -5,7 +5,7 @@ class BodyWeight {
   async getAllByUserId(user_id) {
     const result = await db.query(
       "SELECT * FROM body_weights WHERE user_id = $1 ORDER BY recorded_at DESC",
-      [user_id]
+      [user_id],
     );
     return result.rows;
   }
@@ -13,7 +13,7 @@ class BodyWeight {
   async getLatestByUserId(user_id) {
     const result = await db.query(
       "SELECT * FROM body_weights WHERE user_id = $1 ORDER BY recorded_at DESC LIMIT 1",
-      [user_id]
+      [user_id],
     );
     return result.rows[0];
   }
@@ -33,7 +33,7 @@ class BodyWeight {
   async delete(id) {
     const result = await db.query(
       "DELETE FROM body_weights WHERE id = $1 RETURNING *",
-      [id]
+      [id],
     );
     return result.rows[0];
   }

@@ -7,19 +7,19 @@ const muscleGroupsRouter = Router({ mergeParams: true });
 muscleGroupsRouter.post("/", asyncHandler(muscleGroupsController.create));
 muscleGroupsRouter.get(
   "/",
-  asyncHandler(muscleGroupsController.readAllForUser)
+  asyncHandler(muscleGroupsController.readAllForUser),
 );
 muscleGroupsRouter.get(
   "/:muscleGroupId",
-  asyncHandler(muscleGroupsController.readForUserById)
+  asyncHandler(muscleGroupsController.readForUserById),
 );
 muscleGroupsRouter.patch(
   "/:muscleGroupId",
-  asyncHandler(muscleGroupsController.update)
+  asyncHandler(muscleGroupsController.update),
 );
 muscleGroupsRouter.delete(
   "/:muscleGroupId",
-  asyncHandler(muscleGroupsController.delete)
+  asyncHandler(muscleGroupsController.delete),
 );
 
 module.exports = muscleGroupsRouter;

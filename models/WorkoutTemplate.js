@@ -5,7 +5,7 @@ class WorkoutTemplate {
   async getById(id) {
     const result = await db.query(
       "SELECT * FROM workout_templates WHERE id = $1",
-      [id]
+      [id],
     );
     return result.rows[0];
   }
@@ -13,7 +13,7 @@ class WorkoutTemplate {
   async getAllByUserId(user_id) {
     const result = await db.query(
       "SELECT * FROM workout_templates WHERE user_id = $1 ORDER BY created_at DESC",
-      [user_id]
+      [user_id],
     );
     return result.rows;
   }
@@ -27,7 +27,7 @@ class WorkoutTemplate {
       WHERE te.workout_template_id = $1
       ORDER BY te.position
     `,
-      [workout_template_id]
+      [workout_template_id],
     );
 
     return result.rows;
@@ -40,7 +40,7 @@ class WorkoutTemplate {
 
       await client.query(
         `DELETE FROM template_exercises WHERE workout_template_id = $1`,
-        [template_id]
+        [template_id],
       );
 
       const insertValues = [];
@@ -51,14 +51,14 @@ class WorkoutTemplate {
         valuePlaceholders.push(
           `($1, $${baseIndex + 2}, $${baseIndex + 3}, $${baseIndex + 4}, $${
             baseIndex + 5
-          }, $${baseIndex + 6})`
+          }, $${baseIndex + 6})`,
         );
         insertValues.push(
           ex.exercise_id,
           ex.sets,
           ex.reps,
           ex.weight,
-          ex.position
+          ex.position,
         );
       });
 
@@ -69,7 +69,7 @@ class WorkoutTemplate {
         (workout_template_id, exercise_id, sets, reps, weight, position)
         VALUES ${valuePlaceholders.join(", ")}
         `,
-          [template_id, ...insertValues]
+          [template_id, ...insertValues],
         );
       }
 
@@ -97,7 +97,7 @@ class WorkoutTemplate {
   async delete(id) {
     const result = await db.query(
       "DELETE FROM workout_templates WHERE id = $1 RETURNING *",
-      [id]
+      [id],
     );
     return result.rows[0];
   }

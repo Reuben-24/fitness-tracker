@@ -3,7 +3,9 @@ const { buildInsertQuery, buildUpdateQuery } = require("./utils");
 
 class Exercise {
   async getById(id) {
-    const result = await db.query("SELECT * FROM exercises WHERE id = $1", [id]);
+    const result = await db.query("SELECT * FROM exercises WHERE id = $1", [
+      id,
+    ]);
     return result.rows[0];
   }
 
@@ -18,12 +20,12 @@ class Exercise {
   async getAllByUserId(user_id) {
     const result = await db.query(
       "SELECT * FROM exercises WHERE user_id = $1 ORDER BY created_at DESC",
-      [user_id]
+      [user_id],
     );
     return result.rows;
   }
 
-  async create(data) { 
+  async create(data) {
     const { query, values } = buildInsertQuery("exercises", data);
     const result = await db.query(query, values);
     return result.rows[0];
@@ -38,26 +40,29 @@ class Exercise {
   async delete(id) {
     const result = await db.query(
       "DELETE FROM exercises WHERE id = $1 RETURNING *",
-      [id]
+      [id],
     );
     return result.rows[0];
   }
 
   async getMuscleGroupsForExercise(exerciseId) {
-    const result = await db.query(`
+    const result = await db.query(
+      `
       SELECT mg.*
       FROM muscle_groups mg
       JOIN exercise_muscle_groups emg ON emg.muscle_group_id = mg.id
       WHERE emg.exercise_id = $1
-    `, [exerciseId]);
+    `,
+      [exerciseId],
+    );
 
     return result.rows;
   }
 
   async addMuscleGroupsToExercise(exerciseId, muscleGroupIds = []) {
-    const values = muscleGroupIds.map(
-      (mgId, i) => `($1, $${i + 2})`
-    ).join(", ");
+    const values = muscleGroupIds
+      .map((mgId, i) => `($1, $${i + 2})`)
+      .join(", ");
 
     const query = `
       INSERT INTO exercise_muscle_groups (exercise_id, muscle_group_id)
@@ -75,13 +80,13 @@ class Exercise {
 
       await client.query(
         "DELETE FROM exercise_muscle_groups WHERE exercise_id = $1",
-        [exerciseId]
+        [exerciseId],
       );
 
       if (muscleGroupIds.length > 0) {
-        const values = muscleGroupIds.map(
-          (mgId, i) => `($1, $${i + 2})`
-        ).join(", ");
+        const values = muscleGroupIds
+          .map((mgId, i) => `($1, $${i + 2})`)
+          .join(", ");
 
         const insertQuery = `
           INSERT INTO exercise_muscle_groups (exercise_id, muscle_group_id)

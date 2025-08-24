@@ -2,7 +2,7 @@ const exercise = require("../models/Exercise");
 const muscleGroup = require("../models/MuscleGroup");
 
 exports.create = async (req, res) => {
-  // ADD INPUT VALIDATION
+  // TODO ADD INPUT VALIDATION
   const userId = req.params.userId;
   const { name, description, equipment } = req.body;
   const data = { user_id: userId, name, description, equipment };
@@ -42,11 +42,13 @@ exports.update = async (req, res) => {
   const { userId, exerciseId } = req.params;
   const fieldsToUpdate = { ...req.body };
 
-  const updatedExercise = await exercise.update(exerciseId, fieldsToUpdate);
+  const existingExercise = await exercise.getById(exerciseId);
 
-  if (!updatedExercise || updatedExercise.user_id !== Number(userId)) {
+  if (!existingExercise || existingExercise.user_id !== Number(userId)) {
     return res.status(404).json({ error: "Exercise not found" });
   }
+
+  const updatedExercise = await exercise.update(exerciseId, fieldsToUpdate);
 
   res.status(200).json({
     message: "Exercise successfully updated",
@@ -81,7 +83,7 @@ exports.addMuscleGroup = async (req, res) => {
 
   // Check muscle group belongs to user
   const existingMuscleGroup = await muscleGroup.getById(muscleGroupId);
-  console.log(existingMuscleGroup)
+  console.log(existingMuscleGroup);
   if (!existingMuscleGroup || existingMuscleGroup.user_id !== Number(userId)) {
     return res.status(404).json({ error: "Muscle group not found" });
   }

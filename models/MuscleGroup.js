@@ -3,7 +3,9 @@ const { buildInsertQuery, buildUpdateQuery } = require("./utils");
 
 class MuscleGroup {
   async getById(id) {
-    const result = await db.query("SELECT * FROM muscle_groups WHERE id = $1", [id]);
+    const result = await db.query("SELECT * FROM muscle_groups WHERE id = $1", [
+      id,
+    ]);
     return result.rows[0];
   }
 
@@ -14,7 +16,7 @@ class MuscleGroup {
       WHERE user_id = $1
       ORDER BY created_at DESC;
       `,
-      [user_id]
+      [user_id],
     );
 
     return result.rows;
@@ -35,7 +37,7 @@ class MuscleGroup {
   async delete(id) {
     const result = await db.query(
       "DELETE FROM muscle_groups WHERE id = $1 RETURNING *",
-      [id]
+      [id],
     );
     return result.rows[0];
   }

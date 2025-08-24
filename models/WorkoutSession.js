@@ -5,7 +5,7 @@ class WorkoutSession {
   async getById(id) {
     const result = await db.query(
       "SELECT * FROM workout_sessions WHERE id = $1",
-      [id]
+      [id],
     );
     return result.rows[0];
   }
@@ -13,7 +13,7 @@ class WorkoutSession {
   async getAllByUserId(user_id) {
     const result = await db.query(
       "SELECT * FROM workout_sessions WHERE user_id = $1 ORDER BY started_at DESC",
-      [user_id]
+      [user_id],
     );
     return result.rows;
   }
@@ -50,7 +50,7 @@ class WorkoutSession {
       WHERE ws.id = $1
       GROUP BY ws.id;
     `,
-      [workout_session_id]
+      [workout_session_id],
     );
 
     return result.rows[0];
@@ -91,7 +91,7 @@ class WorkoutSession {
           sessionData.workout_template_id,
           sessionData.started_at,
           sessionData.finished_at,
-        ]
+        ],
       );
 
       const workout_session_id = sessionResult.rows[0].id;
@@ -102,7 +102,7 @@ class WorkoutSession {
           `INSERT INTO session_exercises (workout_session_id, exercise_id, position)
          VALUES ($1, $2, $3)
          RETURNING id`,
-          [workout_session_id, exercise.exercise_id, exercise.position]
+          [workout_session_id, exercise.exercise_id, exercise.position],
         );
 
         const session_exercise_id = sessionExerciseResult.rows[0].id;
@@ -118,7 +118,7 @@ class WorkoutSession {
               set.reps,
               set.weight,
               set.completed,
-            ]
+            ],
           );
         }
       }
@@ -173,13 +173,13 @@ class WorkoutSession {
           sessionData.started_at,
           sessionData.finished_at,
           id,
-        ]
+        ],
       );
 
       // Delete old session_exercises & exercise_sets (cascade should delete sets)
       await client.query(
         `DELETE FROM session_exercises WHERE workout_session_id = $1`,
-        [id]
+        [id],
       );
 
       // Re-insert all exercises and sets
@@ -188,7 +188,7 @@ class WorkoutSession {
           `INSERT INTO session_exercises (workout_session_id, exercise_id, position)
          VALUES ($1, $2, $3)
          RETURNING id`,
-          [id, exercise.exercise_id, exercise.position]
+          [id, exercise.exercise_id, exercise.position],
         );
 
         const session_exercise_id = sessionExerciseResult.rows[0].id;
@@ -203,7 +203,7 @@ class WorkoutSession {
               set.reps,
               set.weight,
               set.completed,
-            ]
+            ],
           );
         }
       }
@@ -221,7 +221,7 @@ class WorkoutSession {
   async delete(id) {
     const result = await db.query(
       "DELETE FROM workout_sessions WHERE id = $1 RETURNING *",
-      [id]
+      [id],
     );
     return result.rows[0];
   }
