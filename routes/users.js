@@ -5,7 +5,7 @@ const controller = require("../controllers/users");
 
 const router = Router();
 
-router.use(auth)
+router.use(auth);
 
 router.post("/", asyncErrorHandler(controller.create));
 router.get("/:userId", asyncErrorHandler(controller.read));

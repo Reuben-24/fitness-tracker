@@ -25,7 +25,7 @@ exports.login = async (req, res) => {
   const newRefreshToken = jwt.sign(
     { userId: existingUser.id },
     process.env.JWT_REFRESH_SECRET,
-    { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN }
+    { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN },
   );
 
   res.json({ token, newRefreshToken });
@@ -63,13 +63,15 @@ exports.logout = async (req, res) => {
   res.json({ message: "Logged out successfully" });
 };
 
-
-
 exports.refreshToken = async (req, res) => {
   const { existingRefreshToken } = req.body;
-  if (!existingRefreshToken) return res.status(401).json({ error: "Missing token" });
+  if (!existingRefreshToken)
+    return res.status(401).json({ error: "Missing token" });
 
-  const payload = jwt.verify(existingRefreshToken, process.env.JWT_REFRESH_SECRET);
+  const payload = jwt.verify(
+    existingRefreshToken,
+    process.env.JWT_REFRESH_SECRET,
+  );
 
   // Get all stored refresh tokens for this user
   const storedTokens = await refreshToken.getAllByUserId(payload.userId);

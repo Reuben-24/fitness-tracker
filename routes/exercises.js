@@ -5,7 +5,7 @@ const controller = require("../controllers/exercises");
 
 const router = Router({ mergeParams: true });
 
-router.use(auth)
+router.use(auth);
 
 router.post("/", asyncErrorHandler(controller.create));
 router.get("/", asyncErrorHandler(controller.readAllForUser));
@@ -14,15 +14,15 @@ router.patch("/:exerciseId", asyncErrorHandler(controller.update));
 router.delete("/:exerciseId", asyncErrorHandler(controller.delete));
 router.post(
   "/:exerciseId/muscle-groups/:muscleGroupId",
-  asyncErrorHandler(controller.addMuscleGroup)
+  asyncErrorHandler(controller.addMuscleGroup),
 );
 router.delete(
   "/:exerciseId/muscle-groups/:muscleGroupId",
-  asyncErrorHandler(controller.removeMuscleGroup)
+  asyncErrorHandler(controller.removeMuscleGroup),
 );
 router.get(
   "/:exerciseId/muscle-groups",
-  asyncErrorHandler(controller.readMuscleGroups)
+  asyncErrorHandler(controller.readMuscleGroups),
 );
 
 module.exports = router;

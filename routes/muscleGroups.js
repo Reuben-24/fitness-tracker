@@ -5,7 +5,7 @@ const controller = require("../controllers/muscleGroups");
 
 const router = Router({ mergeParams: true });
 
-router.use(auth)
+router.use(auth);
 
 router.post("/", asyncErrorHandler(controller.create));
 router.get("/", asyncErrorHandler(controller.readAllForUser));

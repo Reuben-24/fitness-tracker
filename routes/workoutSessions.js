@@ -5,7 +5,7 @@ const controller = require("../controllers/workoutSessions");
 
 const router = Router({ mergeParams: true });
 
-router.use(auth)
+router.use(auth);
 
 router.get("/", asyncErrorHandler(controller.readAllForUser));
 router.post("/", asyncErrorHandler(controller.create));

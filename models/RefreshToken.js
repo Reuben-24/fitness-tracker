@@ -5,14 +5,14 @@ class RefreshToken {
     await db.query(
       `INSERT INTO refresh_tokens (user_id, token_hash, expires_at)
       VALUES ($1, $2, $3)`,
-      [userId, tokenHash, expiresAt]
+      [userId, tokenHash, expiresAt],
     );
   }
 
   async getAllByUserId(userId) {
     const result = await db.query(
       `SELECT * FROM refresh_tokens WHERE user_id = $1`,
-      [userId]
+      [userId],
     );
     return result.rows;
   }
