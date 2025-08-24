@@ -2,7 +2,6 @@ const user = require("../models/User.js");
 const bcrypt = require("bcrypt");
 
 exports.create = async (req, res) => {
-  // ADD INPUT VALIDATION
   const {
     first_name,
     last_name,
@@ -11,7 +10,8 @@ exports.create = async (req, res) => {
     birth_date,
     height_cm,
     gender,
-  } = req.body;
+  } = req.validated.body;
+
   const saltRounds = 10;
   const password_hash = await bcrypt.hash(password, saltRounds);
   const data = {
@@ -23,7 +23,9 @@ exports.create = async (req, res) => {
     height_cm,
     gender,
   };
+
   const newUser = await user.create(data);
+
   res.status(201).json({
     message: "User successfully created",
     user: newUser,
@@ -31,7 +33,7 @@ exports.create = async (req, res) => {
 };
 
 exports.read = async (req, res) => {
-  const userId = req.params.userId;
+  const userId = req.validated.params.userId;
   const existingUser = await user.getById(userId);
 
   if (!existingUser) {
@@ -47,9 +49,8 @@ exports.read = async (req, res) => {
 };
 
 exports.update = async (req, res) => {
-  // ADD INPUT VALIDATION
-  const userId = req.params.userId;
-  let fieldsToUpdate = { ...req.body };
+  const userId = req.validated.params.userId;
+  let fieldsToUpdate = { ...req.validated.body };
 
   // Handle password update: hash it if present
   if (fieldsToUpdate.password) {
@@ -76,7 +77,7 @@ exports.update = async (req, res) => {
 };
 
 exports.delete = async (req, res) => {
-  const userId = req.params.userId;
+  const userId = req.validated.params.userId;
   const deletedUser = await user.delete(userId);
 
   if (!deletedUser) {
