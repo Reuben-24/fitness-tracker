@@ -27,7 +27,7 @@ describe("Auth routes", () => {
     afterAll(async () => {
       // Clean up user and tokens
       await prisma.RefreshToken.deleteMany({ where: { userId: testUser.id } });
-      await prisma.User.delete({ where: { id: testUser.id } });
+      await prisma.User.deleteMany({ where: { id: testUser.id } });
       await prisma.$disconnect();
     });
 
@@ -53,7 +53,7 @@ describe("Auth routes", () => {
       expect(decodedRefresh).toHaveProperty("userId");
       expect(decodedRefresh.userId).toBe(testUser.id);
 
-      // Optional: check expiration timestamps
+      // Check expiration timestamps
       expect(decodedAccess.exp).toBeGreaterThan(Math.floor(Date.now() / 1000));
       expect(decodedRefresh.exp).toBeGreaterThan(Math.floor(Date.now() / 1000));
     });
@@ -107,7 +107,8 @@ describe("Auth routes", () => {
     afterAll(async () => {
       // Clean up user and tokens
       await prisma.RefreshToken.deleteMany({ where: { userId: testUser.id } });
-      await prisma.User.delete({ where: { id: testUser.id } });
+      await prisma.User.deleteMany({ where: { id: testUser.id } });
+      await prisma.$disconnect();
     });
 
     it("should delete the refresh token and return success", async () => {
@@ -166,7 +167,8 @@ describe("Auth routes", () => {
     afterAll(async () => {
       // Clean up user and tokens
       await prisma.RefreshToken.deleteMany({ where: { userId: testUser.id } });
-      await prisma.User.delete({ where: { id: testUser.id } });
+      await prisma.User.deleteMany({ where: { id: testUser.id } });
+      await prisma.$disconnect();
     });
 
     it("should return a new access token with a valid refresh token", async () => {

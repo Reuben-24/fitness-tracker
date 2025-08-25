@@ -1,3 +1,2 @@
-- Add authentication
 - Refactor routes with cleaned up logic (validating userid from auth)
 - Add CRON job to clean up expired tokens (closer to depolyment?)

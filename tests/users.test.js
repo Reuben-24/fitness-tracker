@@ -5,8 +5,9 @@ const bcrypt = require("bcrypt");
 
 describe("Users routes", () => {
   describe("POST /users", () => {
+    let createdUser;
     afterAll(async () => {
-      await prisma.User.deleteMany();
+      await prisma.User.deleteMany({ where: { id: createdUser?.id } });
       await prisma.$disconnect();
     });
 
@@ -88,7 +89,8 @@ describe("Users routes", () => {
     });
 
     afterAll(async () => {
-      await prisma.User.deleteMany();
+      await prisma.RefreshToken.deleteMany({ where: { userId: user?.id } });
+      await prisma.User.deleteMany({ where: { id: user?.id } });
       await prisma.$disconnect();
     });
 
@@ -130,6 +132,9 @@ describe("Users routes", () => {
 
       expect(res.status).toBe(403); // because authorizeParam() should block mismatched IDs
       expect(res.body).toHaveProperty("error");
+
+      await prisma.RefreshToken.deleteMany({ where: { userId: otherUser?.id } });
+      await prisma.User.deleteMany({ where: { id: otherUser?.id } });
     });
   });
 
@@ -162,7 +167,8 @@ describe("Users routes", () => {
     });
 
     afterAll(async () => {
-      await prisma.User.deleteMany();
+      await prisma.RefreshToken.deleteMany({ where: { userId: user?.id } });
+      await prisma.User.deleteMany({ where: { id: user?.id } });
       await prisma.$disconnect();
     });
 
@@ -251,7 +257,8 @@ describe("Users routes", () => {
       expect(res.status).toBe(403);
       expect(res.body).toHaveProperty("error");
 
-      await prisma.User.delete({ where: { id: other.id } });
+      await prisma.User.deleteMany({ where: { id: other.id } });
+      await prisma.RefreshToken.deleteMany({ where: { userId: other.id } });
     });
   });
 
@@ -284,7 +291,8 @@ describe("Users routes", () => {
     });
 
     afterAll(async () => {
-      await prisma.User.deleteMany();
+      await prisma.RefreshToken.deleteMany({ where: { userId: user?.id } });
+      await prisma.User.deleteMany({ where: { id: user?.id } });
       await prisma.$disconnect();
     });
 
@@ -346,7 +354,8 @@ describe("Users routes", () => {
       expect(res.status).toBe(403);
       expect(res.body).toHaveProperty("error");
 
-      await prisma.User.delete({ where: { id: otherUser.id } });
+      await prisma.RefreshToken.deleteMany({ where: { userId: otherUser?.id } });
+      await prisma.User.deleteMany({ where: { id: otherUser?.id } });
     });
   })
 });
