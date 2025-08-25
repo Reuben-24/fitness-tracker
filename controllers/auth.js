@@ -45,7 +45,12 @@ exports.login = async (req, res) => {
 exports.logout = async (req, res) => {
   const { refreshToken } = req.validated.body;
 
-  const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+  let payload;
+  try {
+    payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+  } catch (err) {
+    return res.status(401).json({ error: "Invalid refresh token" });
+  }
 
   // Get all stored refresh tokens for this user
   const storedTokens = await prisma.RefreshToken.findMany({where: { userId: payload.userId }});
@@ -53,7 +58,7 @@ exports.logout = async (req, res) => {
   // Find the token hash that matches
   let matchedToken = null;
   for (const t of storedTokens) {
-    if (await bcrypt.compare(refreshToken, t.token_hash)) {
+    if (await bcrypt.compare(refreshToken, t.tokenHash)) {
       matchedToken = t;
       break;
     }
@@ -61,7 +66,6 @@ exports.logout = async (req, res) => {
 
   if (!matchedToken) return res.status(401).json({ error: "Token not found" });
 
-  // Delete the matching token
   await prisma.RefreshToken.delete({ where: { id: matchedToken.id } });
 
   res.json({ message: "Logged out successfully" });
@@ -70,10 +74,12 @@ exports.logout = async (req, res) => {
 exports.refreshToken = async (req, res) => {
   const { refreshToken } = req.validated.body;
 
-  const payload = jwt.verify(
-    refreshToken,
-    process.env.JWT_REFRESH_SECRET
-  );
+  let payload;
+  try {
+    payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+  } catch (err) {
+    return res.status(401).json({ error: "Invalid refresh token" });
+  }
 
   // Get all stored refresh tokens for this user
   const storedTokens = await prisma.RefreshToken.findMany({where: { userId: payload.userId }});
@@ -81,7 +87,7 @@ exports.refreshToken = async (req, res) => {
   // Find the token hash that matches
   let matchedToken = null;
   for (const t of storedTokens) {
-    if (await bcrypt.compare(refreshToken, t.token_hash)) {
+    if (await bcrypt.compare(refreshToken, t.tokenHash)) {
       matchedToken = t;
       break;
     }
