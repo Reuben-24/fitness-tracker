@@ -1,35 +1,11 @@
-const user = require("../models/User.js");
 const bcrypt = require("bcrypt");
-
-exports.create = async (req, res) => {
-  const { firstName, lastName, email, password, birthDate, heighCm, gender } =
-    req.validated.body;
-
-  const saltRounds = 10;
-  const password_hash = await bcrypt.hash(password, saltRounds);
-  const data = {
-    first_name: firstName,
-    last_name: lastName,
-    email,
-    password_hash,
-    birth_date: birthDate,
-    height_cm: heighCm,
-    gender,
-  };
-
-  const newUser = await user.create(data);
-
-  res.status(201).json({
-    message: "User successfully created",
-    user: newUser,
-  });
-};
+const prisma = require("../prisma/prisma");
 
 exports.read = async (req, res) => {
   const userId = req.user.id;
-  const existingUser = await user.getById(userId);
+  const user = await prisma.User.findUnique({ where: { id: userId } });
 
-  if (!existingUser) {
+  if (!user) {
     return res.status(404).json({
       error: "User not found",
     });
@@ -37,8 +13,38 @@ exports.read = async (req, res) => {
 
   res.status(200).json({
     message: "User successfully retrieved",
-    user: existingUser,
+    user,
   });
+};
+
+exports.create = async (req, res) => {
+  const { firstName, lastName, email, password, birthDate, heightCm, gender } =
+    req.validated.body;
+
+  const saltRounds = 10;
+  const passwordHash = await bcrypt.hash(password, saltRounds);
+
+  try {
+    const user = await prisma.User.create({
+      data: {
+        firstName,
+        lastName,
+        email,
+        passwordHash,
+        birthDate,
+        heightCm,
+        gender,
+      },
+    });
+    res.status(201).json({
+      message: "User successfully created",
+      user,
+    });
+  } catch (err) {
+    if (err.code === "P2002")
+      return res.status(409).json({ error: "Email already in use" });
+    throw err;
+  }
 };
 
 exports.update = async (req, res) => {
@@ -48,40 +54,40 @@ exports.update = async (req, res) => {
   // Handle password update: hash it if present
   if (fieldsToUpdate.password) {
     const saltRounds = 10;
-    fieldsToUpdate.password_hash = await bcrypt.hash(
+    fieldsToUpdate.passwordHash = await bcrypt.hash(
       fieldsToUpdate.password,
-      saltRounds,
+      saltRounds
     );
     delete fieldsToUpdate.password; // remove plain password
   }
 
-  const updatedUser = await user.update(userId, fieldsToUpdate);
-
-  if (!updatedUser) {
-    return res.status(404).json({
-      error: "User not found",
+  try {
+    const user = await prisma.User.update({
+      where: { id: userId },
+      data: fieldsToUpdate,
     });
-  }
 
-  res.status(200).json({
-    message: "User successfully updated",
-    user: updatedUser,
-  });
+    res.status(200).json({
+      message: "User successfully updated",
+      user,
+    });
+  } catch (err) {
+    if (err.code === "P2025") {
+      return res.status(404).json({ error: "User not found" });
+    }
+    throw err;
+  }
 };
 
 exports.delete = async (req, res) => {
   const userId = req.user.id;
 
-  const deletedUser = await user.delete(userId);
-
-  if (!deletedUser) {
-    return res.status(404).json({
-      error: "User not found",
-    });
+  try {
+    const user = await prisma.User.delete({ where: { id: userId } });
+    res.status(200).json({ message: "User deleted successfully", user });
+  } catch (err) {
+    if (err.code === "P2025")
+      return res.status(404).json({ error: "User not found" });
+    throw err;
   }
-
-  res.status(200).json({
-    message: "User successfully deleted",
-    user: deletedUser,
-  });
 };

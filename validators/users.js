@@ -1,17 +1,16 @@
 const { body } = require("express-validator");
 
-// Allowed gender values
 const allowedGenders = ["male", "female", "non-binary", "prefer not to say"];
 
 exports.update = [
-  body("first_name")
+  body("firstName")
     .optional()
     .isString()
     .trim()
     .isLength({ min: 1, max: 100 })
     .withMessage("First name must be 1–100 chars if provided"),
 
-  body("last_name")
+  body("lastName")
     .optional()
     .isString()
     .trim()
@@ -31,7 +30,7 @@ exports.update = [
     .isLength({ min: 8 })
     .withMessage("Password must be at least 8 characters if provided"),
 
-  body("birth_date")
+  body("birthDate")
     .optional()
     .isISO8601()
     .toDate()
@@ -42,7 +41,7 @@ exports.update = [
       return true;
     }),
 
-  body("height_cm")
+  body("heightCm")
     .optional()
     .isInt({ min: 1, max: 300 })
     .toInt()
@@ -57,13 +56,13 @@ exports.update = [
 ];
 
 exports.create = [
-  body("first_name")
+  body("firstName")
     .isString()
     .trim()
     .isLength({ min: 1, max: 100 })
     .withMessage("First name is required (1–100 chars)"),
 
-  body("last_name")
+  body("lastName")
     .isString()
     .trim()
     .isLength({ min: 1, max: 100 })
@@ -80,7 +79,7 @@ exports.create = [
     .isLength({ min: 8 })
     .withMessage("Password must be at least 8 characters long"),
 
-  body("birth_date")
+  body("birthDate")
     .isISO8601()
     .toDate()
     .custom((value) => {
@@ -90,7 +89,7 @@ exports.create = [
       return true;
     }),
 
-  body("height_cm")
+  body("heightCm")
     .isInt({ min: 1, max: 300 }) // enforce realistic range
     .toInt()
     .withMessage("Height must be a positive integer"),
