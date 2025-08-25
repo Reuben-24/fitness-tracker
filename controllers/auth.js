@@ -1,108 +1,99 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const refreshToken = require("../models/RefreshToken");
-const user = require("../models/User");
+const prisma = require("../prisma/prisma");
 
 exports.login = async (req, res) => {
-  // TODO add input validation/sanitisation/rehydration/etc.
-
-  const { email, password } = req.body;
+  const { email, password } = req.validated.body;
 
   // Get user by email
-  const existingUser = await user.getByEmail(email);
-  if (!existingUser)
-    return res.status(401).json({ error: "Invalid credentials" });
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) return res.status(401).json({ error: "Invalid credentials" });
 
   // Compare password
-  const isValid = await bcrypt.compare(password, existingUser.password_hash);
+  const isValid = await bcrypt.compare(password, user.password_hash);
   if (!isValid) return res.status(401).json({ error: "Invalid credentials" });
 
   // Sign access token
-  const token = jwt.sign({ userId: existingUser.id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
+  const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN_SEC,
   });
 
   // Sign refresh token
-  const newRefreshToken = jwt.sign(
-    { userId: existingUser.id },
+  const refreshToken = jwt.sign(
+    { userId: user.id },
     process.env.JWT_REFRESH_SECRET,
-    { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN },
+    { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN_SEC }
   );
 
-  const expiresInSec = parseInt(process.env.JWT_REFRESH_EXPIRES_IN); // e.g., 7 * 24 * 3600
+  const expiresInSec = parseInt(process.env.JWT_REFRESH_EXPIRES_IN_SEC);
   const expiresAt = new Date(Date.now() + expiresInSec * 1000);
 
   const saltRounds = 10;
-  const tokenHash = await bcrypt.hash(newRefreshToken, saltRounds);
+  const tokenHash = await bcrypt.hash(refreshToken, saltRounds);
 
-  await refreshToken.save(existingUser.id, tokenHash, expiresAt);
+  await prisma.refreshToken.create({
+    data: {
+      user_id: user.id,
+      token_hash: tokenHash,
+      expires_at: expiresAt,
+    },
+  });
 
-  res.json({ token, newRefreshToken });
+  res.json({ token, refreshToken });
 };
 
 exports.logout = async (req, res) => {
-  const { refreshToken: existingRefreshToken } = req.body;
-  if (!existingRefreshToken)
-    return res.status(400).json({ error: "Missing refresh token" });
+  const { refreshToken } = req.validated.body;
 
-  let payload;
-  try {
-    payload = jwt.verify(existingRefreshToken, process.env.JWT_REFRESH_SECRET);
-  } catch (err) {
-    return res.status(401).json({ error: "Invalid or expired token" });
-  }
+  const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 
   // Get all stored refresh tokens for this user
-  const storedTokens = await refreshToken.getAllByUserId(payload.userId);
+  const storedTokens = await prisma.refreshToken.findMany({where: { user_id: payload.userId }});
 
   // Find the token hash that matches
-  let tokenToDelete = null;
+  let matchedToken = null;
   for (const t of storedTokens) {
-    if (await bcrypt.compare(existingRefreshToken, t.token_hash)) {
-      tokenToDelete = t.token_hash;
+    if (await bcrypt.compare(refreshToken, t.token_hash)) {
+      matchedToken = t;
       break;
     }
   }
 
-  if (!tokenToDelete) return res.status(401).json({ error: "Token not found" });
+  if (!matchedToken) return res.status(401).json({ error: "Token not found" });
 
   // Delete the matching token
-  await refreshToken.delete(tokenToDelete);
+  await prisma.refreshToken.delete({ where: { id: matchedToken.id } });
 
   res.json({ message: "Logged out successfully" });
 };
 
 exports.refreshToken = async (req, res) => {
-  const { existingRefreshToken } = req.body;
-  if (!existingRefreshToken)
-    return res.status(401).json({ error: "Missing token" });
+  const { refreshToken } = req.validated.body;
 
   const payload = jwt.verify(
-    existingRefreshToken,
-    process.env.JWT_REFRESH_SECRET,
+    refreshToken,
+    process.env.JWT_REFRESH_SECRET
   );
 
   // Get all stored refresh tokens for this user
-  const storedTokens = await refreshToken.getAllByUserId(payload.userId);
-  if (!storedTokens || storedTokens.length === 0)
-    return res.status(401).json({ error: "Token not found" });
+  const storedTokens = await prisma.refreshToken.findMany({where: { user_id: payload.userId }});
 
-  // Compare incoming token to each hashed token
-  let match = false;
+  // Find the token hash that matches
+  let matchedToken = null;
   for (const t of storedTokens) {
-    if (await bcrypt.compare(existingRefreshToken, t.token_hash)) {
-      match = true;
+    if (await bcrypt.compare(refreshToken, t.token_hash)) {
+      matchedToken = t;
       break;
     }
   }
 
-  if (!match) return res.status(401).json({ error: "Invalid refresh token" });
+  if (!matchedToken) return res.status(401).json({ error: "Invalid refresh token" });
 
   // Issue new access token
   const token = jwt.sign({ userId: payload.userId }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
+    expiresIn: process.env.JWT_EXPIRES_IN_SEC,
   });
 
   // Return the same refresh token for now
-  res.json({ token, refreshToken: existingRefreshToken });
+  res.json({ token, refreshToken });
 };
