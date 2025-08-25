@@ -15,7 +15,7 @@ CREATE TABLE users (
 );
 CREATE TABLE refresh_tokens (
   id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   token_hash TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   expires_at TIMESTAMP
@@ -45,15 +45,15 @@ CREATE TABLE exercise_muscle_groups (
 );
 CREATE TABLE workout_templates (
   id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   name VARCHAR(100) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE template_exercises (
   id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  workout_template_id INTEGER REFERENCES workout_templates(id) ON DELETE CASCADE,
-  exercise_id INTEGER REFERENCES exercises(id) ON DELETE CASCADE,
+  workout_template_id INTEGER NOT NULL REFERENCES workout_templates(id) ON DELETE CASCADE,
+  exercise_id INTEGER NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
   sets INTEGER NOT NULL CHECK (sets > 0),
   reps INTEGER NOT NULL CHECK (reps > 0),
   weight NUMERIC(5,2),
@@ -62,20 +62,20 @@ CREATE TABLE template_exercises (
 );
 CREATE TABLE workout_sessions (
   id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   workout_template_id INTEGER REFERENCES workout_templates(id),
   started_at TIMESTAMP,
   finished_at TIMESTAMP
 );
 CREATE TABLE session_exercises (
   id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  workout_session_id INTEGER REFERENCES workout_sessions(id) ON DELETE CASCADE,
-  exercise_id INTEGER REFERENCES exercises(id) ON DELETE CASCADE,
+  workout_session_id INTEGER NOT NULL REFERENCES workout_sessions(id) ON DELETE CASCADE,
+  exercise_id INTEGER NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
   position INTEGER NOT NULL CHECK (position > 0)
 );
 CREATE TABLE exercise_sets (
   id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  session_exercise_id INTEGER REFERENCES session_exercises(id) ON DELETE CASCADE,
+  session_exercise_id INTEGER NOT NULL REFERENCES session_exercises(id) ON DELETE CASCADE,
   set_number INTEGER NOT NULL CHECK (set_number > 0),
   reps INTEGER CHECK (reps >= 0),
   weight NUMERIC(5,2) CHECK (weight >= 0),
@@ -83,7 +83,7 @@ CREATE TABLE exercise_sets (
 );
 CREATE TABLE body_weights (
   id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   weight_kg NUMERIC(5,2) NOT NULL CHECK (weight_kg > 0),
   recorded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
