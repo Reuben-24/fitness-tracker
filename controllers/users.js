@@ -3,24 +3,24 @@ const bcrypt = require("bcrypt");
 
 exports.create = async (req, res) => {
   const {
-    first_name,
-    last_name,
+    firstName,
+    lastName,
     email,
     password,
-    birth_date,
-    height_cm,
+    birthDate,
+    heighCm,
     gender,
   } = req.validated.body;
 
   const saltRounds = 10;
   const password_hash = await bcrypt.hash(password, saltRounds);
   const data = {
-    first_name,
-    last_name,
+    first_name: firstName,
+    last_name: lastName,
     email,
     password_hash,
-    birth_date,
-    height_cm,
+    birth_date: birthDate,
+    height_cm: heighCm,
     gender,
   };
 
@@ -33,7 +33,7 @@ exports.create = async (req, res) => {
 };
 
 exports.read = async (req, res) => {
-  const userId = req.validated.params.userId;
+  const userId = req.user.id;
   const existingUser = await user.getById(userId);
 
   if (!existingUser) {
@@ -49,7 +49,7 @@ exports.read = async (req, res) => {
 };
 
 exports.update = async (req, res) => {
-  const userId = req.validated.params.userId;
+  const userId = req.user.id;
   let fieldsToUpdate = { ...req.validated.body };
 
   // Handle password update: hash it if present
@@ -77,7 +77,8 @@ exports.update = async (req, res) => {
 };
 
 exports.delete = async (req, res) => {
-  const userId = req.validated.params.userId;
+  const userId = req.user.id
+  
   const deletedUser = await user.delete(userId);
 
   if (!deletedUser) {

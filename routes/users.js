@@ -5,6 +5,7 @@ const controller = require("../controllers/users");
 const validate = require("../middleware/validate");
 const validator = require("../validators/users");
 const commonValidator = require("../validators/common");
+const { authorizeParam } = require("../middleware/authorize");
 
 const router = Router();
 
@@ -15,9 +16,10 @@ router.post(
 );
 
 router.get(
-  "/:userId", 
+  "/:userId",
   auth,
-  validate(commonValidator.idParam("userId")), 
+  validate(commonValidator.idParam("userId")),
+  authorizeParam(),
   asyncErrorHandler(controller.read)
 );
 
@@ -25,6 +27,7 @@ router.patch(
   "/:userId",
   auth,
   validate([...commonValidator.idParam("userId"), ...validator.update]),
+  authorizeParam(),
   asyncErrorHandler(controller.update)
 );
 
@@ -32,6 +35,7 @@ router.delete(
   "/:userId",
   auth,
   validate(commonValidator.idParam("userId")),
+  authorizeParam(),
   asyncErrorHandler(controller.delete)
 );
 

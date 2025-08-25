@@ -2,9 +2,8 @@ const exercise = require("../models/Exercise");
 const muscleGroup = require("../models/MuscleGroup");
 
 exports.create = async (req, res) => {
-  // TODO ADD INPUT VALIDATION
-  const userId = req.params.userId;
-  const { name, description, equipment } = req.body;
+  const userId = req.user.id;
+  const { name, description, equipment } = req.validated.body;
   const data = { user_id: userId, name, description, equipment };
   const newExercise = await exercise.create(data);
   res.status(201).json({
@@ -14,9 +13,8 @@ exports.create = async (req, res) => {
 };
 
 exports.readAllForUser = async (req, res) => {
-  const userId = req.params.userId;
+  const userId = req.user.id;
   const exercises = await exercise.getAllByUserId(userId);
-
   res.status(200).json({
     message: "Exercises successfully retrieved",
     exercises, // will be [] if no exercises
@@ -24,7 +22,8 @@ exports.readAllForUser = async (req, res) => {
 };
 
 exports.readForUserById = async (req, res) => {
-  const { userId, exerciseId } = req.params;
+  const userId = req.user.id;
+  const exerciseId = req.validated.params.exerciseId;
   const existingExercise = await exercise.getById(exerciseId);
 
   if (!existingExercise || existingExercise.user_id !== Number(userId)) {
