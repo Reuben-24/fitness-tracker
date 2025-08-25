@@ -9,7 +9,7 @@ const router = Router();
 router.post(
   "/login",
   validate(validator.login),
-  asyncErrorHandler(controller.login)
+  asyncErrorHandler(controller.login),
 );
 
 router.post("/logout", asyncErrorHandler(controller.logout));

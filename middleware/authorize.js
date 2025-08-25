@@ -1,6 +1,6 @@
 const authorizeParam = (paramName = "userId") => {
   return (req, res, next) => {
-    const authenticatedUserId = req.user.id; 
+    const authenticatedUserId = req.user.id;
     const resourceUserId = req.validated?.params?.[paramName];
 
     if (!resourceUserId) {
@@ -8,7 +8,9 @@ const authorizeParam = (paramName = "userId") => {
     }
 
     if (authenticatedUserId !== resourceUserId) {
-      return res.status(403).json({ error: "Forbidden: You do not have access to this resource" });
+      return res
+        .status(403)
+        .json({ error: "Forbidden: You do not have access to this resource" });
     }
 
     next();

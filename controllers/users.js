@@ -2,15 +2,8 @@ const user = require("../models/User.js");
 const bcrypt = require("bcrypt");
 
 exports.create = async (req, res) => {
-  const {
-    firstName,
-    lastName,
-    email,
-    password,
-    birthDate,
-    heighCm,
-    gender,
-  } = req.validated.body;
+  const { firstName, lastName, email, password, birthDate, heighCm, gender } =
+    req.validated.body;
 
   const saltRounds = 10;
   const password_hash = await bcrypt.hash(password, saltRounds);
@@ -77,8 +70,8 @@ exports.update = async (req, res) => {
 };
 
 exports.delete = async (req, res) => {
-  const userId = req.user.id
-  
+  const userId = req.user.id;
+
   const deletedUser = await user.delete(userId);
 
   if (!deletedUser) {

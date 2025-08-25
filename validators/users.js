@@ -56,7 +56,7 @@ exports.update = [
     .withMessage(`Gender must be one of: ${allowedGenders.join(", ")}`),
 ];
 
-exports.create =[
+exports.create = [
   body("first_name")
     .isString()
     .trim()

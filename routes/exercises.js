@@ -13,7 +13,7 @@ router.use(auth);
 router.post(
   "/",
   validate(validator.create),
-  asyncErrorHandler(controller.create)
+  asyncErrorHandler(controller.create),
 );
 
 router.get("/", asyncErrorHandler(controller.readAllForUser));
@@ -21,19 +21,19 @@ router.get("/", asyncErrorHandler(controller.readAllForUser));
 router.get(
   "/:exerciseId",
   validate(commonValidator.idParam("exerciseId")),
-  asyncErrorHandler(controller.readForUserById)
-);       
+  asyncErrorHandler(controller.readForUserById),
+);
 
 router.patch(
   "/:exerciseId",
   validate(commonValidator.idParam("exerciseId")),
-  asyncErrorHandler(controller.update)
+  asyncErrorHandler(controller.update),
 );
 
 router.delete(
   "/:exerciseId",
   validate(commonValidator.idParam("exerciseId")),
-  asyncErrorHandler(controller.delete)
+  asyncErrorHandler(controller.delete),
 );
 
 router.post(
@@ -42,7 +42,7 @@ router.post(
     ...commonValidator.idParam("exerciseId"),
     ...validate(commonValidator.idParam("exerciseId")),
   ]),
-  asyncErrorHandler(controller.addMuscleGroup)
+  asyncErrorHandler(controller.addMuscleGroup),
 );
 
 router.delete(
@@ -51,12 +51,12 @@ router.delete(
     ...commonValidator.idParam("exerciseId"),
     ...validate(commonValidator.idParam("exerciseId")),
   ]),
-  asyncErrorHandler(controller.removeMuscleGroup)
+  asyncErrorHandler(controller.removeMuscleGroup),
 );
 
 router.get(
   "/:exerciseId/muscle-groups",
-  asyncErrorHandler(controller.readMuscleGroups)
+  asyncErrorHandler(controller.readMuscleGroups),
 );
 
 module.exports = router;

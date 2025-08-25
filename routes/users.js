@@ -12,7 +12,7 @@ const router = Router();
 router.post(
   "/",
   validate(validator.create),
-  asyncErrorHandler(controller.create)
+  asyncErrorHandler(controller.create),
 );
 
 router.get(
@@ -20,7 +20,7 @@ router.get(
   auth,
   validate(commonValidator.idParam("userId")),
   authorizeParam(),
-  asyncErrorHandler(controller.read)
+  asyncErrorHandler(controller.read),
 );
 
 router.patch(
@@ -28,7 +28,7 @@ router.patch(
   auth,
   validate([...commonValidator.idParam("userId"), ...validator.update]),
   authorizeParam(),
-  asyncErrorHandler(controller.update)
+  asyncErrorHandler(controller.update),
 );
 
 router.delete(
@@ -36,7 +36,7 @@ router.delete(
   auth,
   validate(commonValidator.idParam("userId")),
   authorizeParam(),
-  asyncErrorHandler(controller.delete)
+  asyncErrorHandler(controller.delete),
 );
 
 module.exports = router;

@@ -26,7 +26,7 @@ exports.login = async (req, res) => {
   const newRefreshToken = jwt.sign(
     { userId: existingUser.id },
     process.env.JWT_REFRESH_SECRET,
-    { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN }
+    { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN },
   );
 
   const expiresInSec = parseInt(process.env.JWT_REFRESH_EXPIRES_IN); // e.g., 7 * 24 * 3600
@@ -79,7 +79,7 @@ exports.refreshToken = async (req, res) => {
 
   const payload = jwt.verify(
     existingRefreshToken,
-    process.env.JWT_REFRESH_SECRET
+    process.env.JWT_REFRESH_SECRET,
   );
 
   // Get all stored refresh tokens for this user
