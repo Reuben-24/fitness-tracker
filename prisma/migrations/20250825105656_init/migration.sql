@@ -1,15 +1,5 @@
 -- CreateEnum
-CREATE TYPE "public"."user_gender" AS ENUM ('male', 'female', 'non-binary', 'prefer not to say');
-
--- CreateTable
-CREATE TABLE "public"."body_weights" (
-    "id" SERIAL NOT NULL,
-    "user_id" INTEGER NOT NULL,
-    "weight_kg" DECIMAL(5,2) NOT NULL,
-    "recorded_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "body_weights_pkey" PRIMARY KEY ("id")
-);
+CREATE TYPE "public"."UserGender" AS ENUM ('male', 'female', 'non-binary', 'prefer not to say');
 
 -- CreateTable
 CREATE TABLE "public"."exercise_muscle_groups" (
@@ -39,7 +29,7 @@ CREATE TABLE "public"."exercises" (
     "description" TEXT,
     "equipment" VARCHAR(100),
     "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "exercises_pkey" PRIMARY KEY ("id")
 );
@@ -50,7 +40,7 @@ CREATE TABLE "public"."muscle_groups" (
     "user_id" INTEGER NOT NULL,
     "name" VARCHAR(100) NOT NULL,
     "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "muscle_groups_pkey" PRIMARY KEY ("id")
 );
@@ -60,8 +50,8 @@ CREATE TABLE "public"."refresh_tokens" (
     "id" SERIAL NOT NULL,
     "user_id" INTEGER NOT NULL,
     "token_hash" TEXT NOT NULL,
-    "created_at" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
-    "expires_at" TIMESTAMP(6),
+    "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "expires_at" TIMESTAMP(6) NOT NULL,
 
     CONSTRAINT "refresh_tokens_pkey" PRIMARY KEY ("id")
 );
@@ -94,13 +84,13 @@ CREATE TABLE "public"."users" (
     "id" SERIAL NOT NULL,
     "first_name" VARCHAR(100) NOT NULL,
     "last_name" VARCHAR(100) NOT NULL,
-    "email" CITEXT NOT NULL,
+    "email" VARCHAR(255) NOT NULL,
     "password_hash" TEXT NOT NULL,
     "birth_date" DATE NOT NULL,
     "height_cm" INTEGER NOT NULL,
-    "gender" "public"."user_gender" NOT NULL DEFAULT 'prefer not to say',
+    "gender" "public"."UserGender" NOT NULL DEFAULT 'prefer not to say',
     "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
@@ -122,13 +112,10 @@ CREATE TABLE "public"."workout_templates" (
     "user_id" INTEGER NOT NULL,
     "name" VARCHAR(100) NOT NULL,
     "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "workout_templates_pkey" PRIMARY KEY ("id")
 );
-
--- CreateIndex
-CREATE INDEX "idx_body_weights_user_id_recorded_at" ON "public"."body_weights"("user_id", "recorded_at" DESC);
 
 -- CreateIndex
 CREATE INDEX "idx_exercise_muscle_groups_exercise_id" ON "public"."exercise_muscle_groups"("exercise_id");
@@ -141,9 +128,6 @@ CREATE INDEX "idx_exercise_sets_session_exercise_id" ON "public"."exercise_sets"
 
 -- CreateIndex
 CREATE UNIQUE INDEX "exercises_user_id_name_key" ON "public"."exercises"("user_id", "name");
-
--- CreateIndex
-CREATE UNIQUE INDEX "muscle_groups_name_key" ON "public"."muscle_groups"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "muscle_groups_user_id_name_key" ON "public"."muscle_groups"("user_id", "name");
@@ -177,9 +161,6 @@ CREATE INDEX "idx_workout_sessions_user_id" ON "public"."workout_sessions"("user
 
 -- CreateIndex
 CREATE INDEX "idx_workout_templates_user_id" ON "public"."workout_templates"("user_id");
-
--- AddForeignKey
-ALTER TABLE "public"."body_weights" ADD CONSTRAINT "body_weights_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 
 -- AddForeignKey
 ALTER TABLE "public"."exercise_muscle_groups" ADD CONSTRAINT "exercise_muscle_groups_exercise_id_fkey" FOREIGN KEY ("exercise_id") REFERENCES "public"."exercises"("id") ON DELETE CASCADE ON UPDATE NO ACTION;

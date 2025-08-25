@@ -6,11 +6,11 @@ exports.login = async (req, res) => {
   const { email, password } = req.validated.body;
 
   // Get user by email
-  const user = await prisma.user.findUnique({ where: { email } });
+  const user = await prisma.User.findUnique({ where: { email } });
   if (!user) return res.status(401).json({ error: "Invalid credentials" });
 
   // Compare password
-  const isValid = await bcrypt.compare(password, user.password_hash);
+  const isValid = await bcrypt.compare(password, user.passwordHash);
   if (!isValid) return res.status(401).json({ error: "Invalid credentials" });
 
   // Sign access token
@@ -31,11 +31,11 @@ exports.login = async (req, res) => {
   const saltRounds = 10;
   const tokenHash = await bcrypt.hash(refreshToken, saltRounds);
 
-  await prisma.refreshToken.create({
+  await prisma.RefreshToken.create({
     data: {
-      user_id: user.id,
-      token_hash: tokenHash,
-      expires_at: expiresAt,
+      userId: user.id,
+      tokenHash: tokenHash,
+      expiresAt: expiresAt,
     },
   });
 
@@ -48,7 +48,7 @@ exports.logout = async (req, res) => {
   const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 
   // Get all stored refresh tokens for this user
-  const storedTokens = await prisma.refreshToken.findMany({where: { user_id: payload.userId }});
+  const storedTokens = await prisma.RefreshToken.findMany({where: { userId: payload.userId }});
 
   // Find the token hash that matches
   let matchedToken = null;
@@ -62,7 +62,7 @@ exports.logout = async (req, res) => {
   if (!matchedToken) return res.status(401).json({ error: "Token not found" });
 
   // Delete the matching token
-  await prisma.refreshToken.delete({ where: { id: matchedToken.id } });
+  await prisma.RefreshToken.delete({ where: { id: matchedToken.id } });
 
   res.json({ message: "Logged out successfully" });
 };
@@ -76,7 +76,7 @@ exports.refreshToken = async (req, res) => {
   );
 
   // Get all stored refresh tokens for this user
-  const storedTokens = await prisma.refreshToken.findMany({where: { user_id: payload.userId }});
+  const storedTokens = await prisma.RefreshToken.findMany({where: { userId: payload.userId }});
 
   // Find the token hash that matches
   let matchedToken = null;

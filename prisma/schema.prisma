@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -8,161 +7,169 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-model body_weights {
+model ExerciseMuscleGroup {
+  exerciseId    Int @map("exercise_id")
+  muscleGroupId Int @map("muscle_group_id")
+
+  exercise    Exercise    @relation(fields: [exerciseId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  muscleGroup MuscleGroup @relation(fields: [muscleGroupId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([exerciseId, muscleGroupId])
+  @@index([exerciseId], map: "idx_exercise_muscle_groups_exercise_id")
+  @@index([muscleGroupId], map: "idx_exercise_muscle_groups_muscle_group_id")
+  @@map("exercise_muscle_groups")
+}
+
+model ExerciseSet {
+  id                Int      @id @default(autoincrement())
+  sessionExerciseId Int      @map("session_exercise_id")
+  setNumber         Int      @map("set_number")
+  reps              Int?
+  weight            Decimal? @db.Decimal(5, 2)
+  completed         Boolean  @default(true)
+
+  sessionExercise SessionExercise @relation(fields: [sessionExerciseId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([sessionExerciseId], map: "idx_exercise_sets_session_exercise_id")
+  @@map("exercise_sets")
+}
+
+model Exercise {
   id          Int      @id @default(autoincrement())
-  user_id     Int
-  weight_kg   Decimal  @db.Decimal(5, 2)
-  recorded_at DateTime @default(now()) @db.Timestamp(6)
-  users       users    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  userId      Int      @map("user_id")
+  name        String   @db.VarChar(100)
+  description String?
+  equipment   String?  @db.VarChar(100)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
-  @@index([user_id, recorded_at(sort: Desc)], map: "idx_body_weights_user_id_recorded_at")
+  exerciseMuscleGroups ExerciseMuscleGroup[]
+  sessions             SessionExercise[]
+  templateExercises    TemplateExercise[]
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([userId, name])
+  @@map("exercises")
 }
 
-model exercise_muscle_groups {
-  exercise_id     Int
-  muscle_group_id Int
-  exercises       exercises     @relation(fields: [exercise_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  muscle_groups   muscle_groups @relation(fields: [muscle_group_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+model MuscleGroup {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @map("user_id")
+  name        String   @db.VarChar(100)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
-  @@id([exercise_id, muscle_group_id])
-  @@index([exercise_id], map: "idx_exercise_muscle_groups_exercise_id")
-  @@index([muscle_group_id], map: "idx_exercise_muscle_groups_muscle_group_id")
+  exerciseMuscleGroups ExerciseMuscleGroup[]
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([userId, name])
+  @@map("muscle_groups")
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-model exercise_sets {
-  id                  Int               @id @default(autoincrement())
-  session_exercise_id Int
-  set_number          Int
-  reps                Int?
-  weight              Decimal?          @db.Decimal(5, 2)
-  completed           Boolean           @default(true)
-  session_exercises   session_exercises @relation(fields: [session_exercise_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  tokenHash String   @map("token_hash")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  expiresAt DateTime @map("expires_at") @db.Timestamp(6)
 
-  @@index([session_exercise_id], map: "idx_exercise_sets_session_exercise_id")
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([userId], map: "idx_refresh_tokens_user_id")
+  @@map("refresh_tokens")
 }
 
-model exercises {
-  id                     Int                      @id @default(autoincrement())
-  user_id                Int
-  name                   String                   @db.VarChar(100)
-  description            String?
-  equipment              String?                  @db.VarChar(100)
-  created_at             DateTime                 @default(now()) @db.Timestamp(6)
-  updated_at             DateTime                 @default(now()) @db.Timestamp(6)
-  exercise_muscle_groups exercise_muscle_groups[]
-  users                  users                    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  session_exercises      session_exercises[]
-  template_exercises     template_exercises[]
+model SessionExercise {
+  id               Int @id @default(autoincrement())
+  workoutSessionId Int @map("workout_session_id")
+  exerciseId       Int @map("exercise_id")
+  position         Int
 
-  @@unique([user_id, name])
+  exercise       Exercise       @relation(fields: [exerciseId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  workoutSession WorkoutSession @relation(fields: [workoutSessionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  exerciseSets   ExerciseSet[]
+
+  @@index([exerciseId], map: "idx_session_exercises_exercise_id")
+  @@index([workoutSessionId], map: "idx_session_exercises_session_id")
+  @@map("session_exercises")
 }
 
-model muscle_groups {
-  id                     Int                      @id @default(autoincrement())
-  user_id                Int
-  name                   String                   @unique @db.VarChar(100)
-  created_at             DateTime                 @default(now()) @db.Timestamp(6)
-  updated_at             DateTime                 @default(now()) @db.Timestamp(6)
-  exercise_muscle_groups exercise_muscle_groups[]
-  users                  users                    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+model TemplateExercise {
+  id                Int       @id @default(autoincrement())
+  workoutTemplateId Int       @map("workout_template_id")
+  exerciseId        Int       @map("exercise_id")
+  sets              Int
+  reps              Int
+  weight            Decimal?  @db.Decimal(5, 2)
+  position          Int
 
-  @@unique([user_id, name])
+  exercise        Exercise        @relation(fields: [exerciseId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  workoutTemplate WorkoutTemplate @relation(fields: [workoutTemplateId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([workoutTemplateId, position])
+  @@index([exerciseId], map: "idx_template_exercises_exercise_id")
+  @@index([workoutTemplateId], map: "idx_template_exercises_template_id")
+  @@map("template_exercises")
 }
 
-model refresh_tokens {
-  id         Int       @id @default(autoincrement())
-  user_id    Int
-  token_hash String
-  created_at DateTime? @default(now()) @db.Timestamp(6)
-  expires_at DateTime? @db.Timestamp(6)
-  users      users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+model User {
+  id         Int        @id @default(autoincrement())
+  firstName  String     @map("first_name") @db.VarChar(100)
+  lastName   String     @map("last_name")  @db.VarChar(100)
+  email      String     @unique @db.VarChar(255)
+  passwordHash   String     @map("password_hash")
+  birthDate  DateTime   @map("birth_date") @db.Date
+  heightCm   Int        @map("height_cm")
+  gender     UserGender @default(preferNotToSay)
+  createdAt  DateTime   @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt  DateTime   @updatedAt @map("updated_at")
 
-  @@index([user_id], map: "idx_refresh_tokens_user_id")
+  exercises         Exercise[]
+  muscleGroups      MuscleGroup[]
+  refreshTokens     RefreshToken[]
+  workoutSessions   WorkoutSession[]
+  workoutTemplates  WorkoutTemplate[]
+
+  @@map("users")
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-model session_exercises {
-  id                 Int              @id @default(autoincrement())
-  workout_session_id Int
-  exercise_id        Int
-  position           Int
-  exercise_sets      exercise_sets[]
-  exercises          exercises        @relation(fields: [exercise_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  workout_sessions   workout_sessions @relation(fields: [workout_session_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+model WorkoutSession {
+  id                 Int        @id @default(autoincrement())
+  userId             Int        @map("user_id")
+  workoutTemplateId  Int?       @map("workout_template_id")
+  startedAt          DateTime?  @map("started_at") @db.Timestamp(6)
+  finishedAt         DateTime?  @map("finished_at") @db.Timestamp(6)
 
-  @@index([exercise_id], map: "idx_session_exercises_exercise_id")
-  @@index([workout_session_id], map: "idx_session_exercises_session_id")
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  workoutTemplate  WorkoutTemplate? @relation(fields: [workoutTemplateId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sessionExercises SessionExercise[]
+
+  @@index([startedAt], map: "idx_workout_sessions_started_at")
+  @@index([userId], map: "idx_workout_sessions_user_id")
+  @@map("workout_sessions")
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-model template_exercises {
-  id                  Int               @id @default(autoincrement())
-  workout_template_id Int
-  exercise_id         Int
-  sets                Int
-  reps                Int
-  weight              Decimal?          @db.Decimal(5, 2)
-  position            Int
-  exercises           exercises         @relation(fields: [exercise_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  workout_templates   workout_templates @relation(fields: [workout_template_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+model WorkoutTemplate {
+  id         Int               @id @default(autoincrement())
+  userId     Int               @map("user_id")
+  name       String            @db.VarChar(100)
+  createdAt  DateTime          @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt  DateTime          @updatedAt @map("updated_at")
 
-  @@unique([workout_template_id, position])
-  @@index([exercise_id], map: "idx_template_exercises_exercise_id")
-  @@index([workout_template_id], map: "idx_template_exercises_template_id")
+  templateExercises TemplateExercise[]
+  workoutSessions   WorkoutSession[]
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([userId], map: "idx_workout_templates_user_id")
+  @@map("workout_templates")
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-model users {
-  id                Int                 @id @default(autoincrement())
-  first_name        String              @db.VarChar(100)
-  last_name         String              @db.VarChar(100)
-  email             String              @unique @db.Citext
-  password_hash     String
-  birth_date        DateTime            @db.Date
-  height_cm         Int
-  gender            user_gender         @default(prefer_not_to_say)
-  created_at        DateTime            @default(now()) @db.Timestamp(6)
-  updated_at        DateTime            @default(now()) @db.Timestamp(6)
-  body_weights      body_weights[]
-  exercises         exercises[]
-  muscle_groups     muscle_groups[]
-  refresh_tokens    refresh_tokens[]
-  workout_sessions  workout_sessions[]
-  workout_templates workout_templates[]
-}
-
-model workout_sessions {
-  id                  Int                 @id @default(autoincrement())
-  user_id             Int
-  workout_template_id Int?
-  started_at          DateTime?           @db.Timestamp(6)
-  finished_at         DateTime?           @db.Timestamp(6)
-  session_exercises   session_exercises[]
-  users               users               @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  workout_templates   workout_templates?  @relation(fields: [workout_template_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@index([started_at], map: "idx_workout_sessions_started_at")
-  @@index([user_id], map: "idx_workout_sessions_user_id")
-}
-
-model workout_templates {
-  id                 Int                  @id @default(autoincrement())
-  user_id            Int
-  name               String               @db.VarChar(100)
-  created_at         DateTime             @default(now()) @db.Timestamp(6)
-  updated_at         DateTime             @default(now()) @db.Timestamp(6)
-  template_exercises template_exercises[]
-  workout_sessions   workout_sessions[]
-  users              users                @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@index([user_id], map: "idx_workout_templates_user_id")
-}
-
-enum user_gender {
+enum UserGender {
   male
   female
-  non_binary        @map("non-binary")
-  prefer_not_to_say @map("prefer not to say")
+  nonBinary        @map("non-binary")
+  preferNotToSay   @map("prefer not to say")
 }
