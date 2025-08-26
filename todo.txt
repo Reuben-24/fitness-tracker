@@ -1,2 +1,3 @@
 - Refactor routes with cleaned up logic (validating userid from auth)
 - Add CRON job to clean up expired tokens (closer to depolyment?)
+- Setup clean global strategy to handle errors and response codes (customer errors, etc.)

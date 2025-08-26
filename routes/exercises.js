@@ -10,18 +10,18 @@ const router = Router();
 
 router.use(auth);
 
-router.post(
-  "/",
-  validate(validator.create),
-  asyncErrorHandler(controller.create),
-);
-
 router.get("/", asyncErrorHandler(controller.readAllForUser));
 
 router.get(
   "/:exerciseId",
   validate(commonValidator.idParam("exerciseId")),
   asyncErrorHandler(controller.readForUserById),
+);
+
+router.post(
+  "/",
+  validate(validator.create),
+  asyncErrorHandler(controller.create),
 );
 
 router.patch(
@@ -40,7 +40,7 @@ router.post(
   "/:exerciseId/muscle-groups/:muscleGroupId",
   validate([
     ...commonValidator.idParam("exerciseId"),
-    ...validate(commonValidator.idParam("exerciseId")),
+    ...commonValidator.idParam("muscleGroupId"),
   ]),
   asyncErrorHandler(controller.addMuscleGroup),
 );
@@ -49,7 +49,7 @@ router.delete(
   "/:exerciseId/muscle-groups/:muscleGroupId",
   validate([
     ...commonValidator.idParam("exerciseId"),
-    ...validate(commonValidator.idParam("exerciseId")),
+    ...commonValidator.idParam("muscleGroupId"),
   ]),
   asyncErrorHandler(controller.removeMuscleGroup),
 );
