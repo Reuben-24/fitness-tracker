@@ -43,6 +43,7 @@ model Exercise {
   createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt   DateTime @updatedAt @map("updated_at")
 
+  muscleGroups         MuscleGroup[]
   exerciseMuscleGroups ExerciseMuscleGroup[]
   sessions             SessionExercise[]
   templateExercises    TemplateExercise[]
@@ -60,6 +61,7 @@ model MuscleGroup {
   createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt   DateTime @updatedAt @map("updated_at")
 
+  exercises Exercise[]
   exerciseMuscleGroups ExerciseMuscleGroup[]
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)

@@ -26,7 +26,7 @@ router.post(
 
 router.patch(
   "/:exerciseId",
-  validate(commonValidator.idParam("exerciseId")),
+  validate([...commonValidator.idParam("exerciseId"), ...validator.update]),
   asyncErrorHandler(controller.update),
 );
 
@@ -34,29 +34,6 @@ router.delete(
   "/:exerciseId",
   validate(commonValidator.idParam("exerciseId")),
   asyncErrorHandler(controller.delete),
-);
-
-router.post(
-  "/:exerciseId/muscle-groups/:muscleGroupId",
-  validate([
-    ...commonValidator.idParam("exerciseId"),
-    ...commonValidator.idParam("muscleGroupId"),
-  ]),
-  asyncErrorHandler(controller.addMuscleGroup),
-);
-
-router.delete(
-  "/:exerciseId/muscle-groups/:muscleGroupId",
-  validate([
-    ...commonValidator.idParam("exerciseId"),
-    ...commonValidator.idParam("muscleGroupId"),
-  ]),
-  asyncErrorHandler(controller.removeMuscleGroup),
-);
-
-router.get(
-  "/:exerciseId/muscle-groups",
-  asyncErrorHandler(controller.readMuscleGroups),
 );
 
 module.exports = router;

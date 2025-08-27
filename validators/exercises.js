@@ -20,6 +20,14 @@ exports.create = [
     .trim()
     .isLength({ max: 100 })
     .withMessage("Equipment must be less than 100 characters"),
+
+  body("muscleGroupIds")
+    .optional()
+    .isArray()
+    .withMessage("muscleGroupIds must be an array of integers")
+    .bail()
+    .custom((arr) => arr.every(Number.isInteger))
+    .withMessage("Each muscleGroupId must be an integer"),
 ];
 
 exports.update = [
@@ -43,4 +51,12 @@ exports.update = [
     .trim()
     .isLength({ max: 100 })
     .withMessage("Equipment must be less than 100 characters if provided"),
+
+  body("muscleGroupIds")
+    .optional()
+    .isArray()
+    .withMessage("muscleGroupIds must be an array of integers")
+    .bail()
+    .custom((arr) => arr.every(Number.isInteger))
+    .withMessage("Each muscleGroupId must be an integer"),
 ];

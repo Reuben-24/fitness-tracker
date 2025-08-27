@@ -2,6 +2,7 @@ const request = require("supertest");
 const app = require("../app");
 const prisma = require("../prisma/prisma");
 const bcrypt = require("bcrypt");
+const generateTestJWT = require("./helpers/jwt");
 
 describe("Users routes", () => {
   describe("POST /users", () => {
@@ -80,12 +81,8 @@ describe("Users routes", () => {
         },
       });
 
-      // Log in to get token
-      const loginRes = await request(app)
-        .post("/auth/login")
-        .send({ email: "johndoe@example.com", password: "password123" });
-
-      token = loginRes.body.token;
+      // Generate test token
+      token = "Bearer " + generateTestJWT(user.id);
     });
 
     afterAll(async () => {
@@ -97,7 +94,7 @@ describe("Users routes", () => {
     it("should retrieve the user when authorized", async () => {
       const res = await request(app)
         .get(`/users/${user.id}`)
-        .set("Authorization", `Bearer ${token}`);
+        .set("Authorization", token);
 
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty("user");
@@ -128,7 +125,7 @@ describe("Users routes", () => {
 
       const res = await request(app)
         .get(`/users/${otherUser.id}`)
-        .set("Authorization", `Bearer ${token}`);
+        .set("Authorization", token);
 
       expect(res.status).toBe(403); // because authorizeParam() should block mismatched IDs
       expect(res.body).toHaveProperty("error");
@@ -158,12 +155,8 @@ describe("Users routes", () => {
         },
       });
 
-      // Log in to get token
-      const loginRes = await request(app)
-        .post("/auth/login")
-        .send({ email: "johndoe@example.com", password: "password123" });
-
-      token = loginRes.body.token;
+      // Generate test token
+      token = "Bearer " + generateTestJWT(user.id);
     });
 
     afterAll(async () => {
@@ -175,7 +168,7 @@ describe("Users routes", () => {
     it("should update all fields successfully", async () => {
       const res = await request(app)
         .patch(`/users/${user.id}`)
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", token)
         .send({
           firstName: "Johnny",
           lastName: "Brianson",
@@ -204,7 +197,7 @@ describe("Users routes", () => {
     it("should update a single field", async () => {
       const res = await request(app)
         .patch(`/users/${user.id}`)
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", token)
         .send({
           lastName: "Smith",
         });
@@ -217,7 +210,7 @@ describe("Users routes", () => {
     it("should reject invalid gender", async () => {
       const res = await request(app)
         .patch(`/users/${user.id}`)
-        .set("Authorization", `Bearer ${token}`)
+        .set("Authorization", token)
         .send({
           gender: "not-a-gender",
         });
@@ -242,16 +235,11 @@ describe("Users routes", () => {
         },
       });
 
-      // login as `other`
-      const loginRes = await request(app)
-        .post("/auth/login")
-        .send({ email: "other@example.com", password });
-
-      const otherToken = loginRes.body.token;
+      const otherToken = "Bearer " + generateTestJWT(other.id);
 
       const res = await request(app)
         .patch(`/users/${user.id}`)
-        .set("Authorization", `Bearer ${otherToken}`)
+        .set("Authorization", otherToken)
         .send({ firstName: "Hacker" });
 
       expect(res.status).toBe(403);
@@ -282,12 +270,8 @@ describe("Users routes", () => {
         },
       });
 
-      // Log in to get token
-      const loginRes = await request(app)
-        .post("/auth/login")
-        .send({ email: "janedoe@example.com", password });
-
-      token = loginRes.body.token;
+      // Generate auth token
+      token = "Bearer " + generateTestJWT(user.id);
     });
 
     afterAll(async () => {
@@ -299,7 +283,7 @@ describe("Users routes", () => {
     it("should delete the user successfully", async () => {
       const res = await request(app)
         .delete(`/users/${user.id}`)
-        .set("Authorization", `Bearer ${token}`);
+        .set("Authorization", token);
 
       expect(res.status).toBe(200);
       expect(res.body.message).toBe("User deleted successfully");
@@ -319,7 +303,7 @@ describe("Users routes", () => {
     it("should return 400 for invalid userId param", async () => {
       const res = await request(app)
         .delete("/users/invalid-id")
-        .set("Authorization", `Bearer ${token}`);
+        .set("Authorization", token);
 
       expect(res.status).toBe(400); // assuming your validator returns 400
       expect(res.body).toHaveProperty("errors");
@@ -332,7 +316,7 @@ describe("Users routes", () => {
         data: {
           firstName: "Other",
           lastName: "User",
-          email: "other@example.com",
+          email: "otherUser@example.com",
           passwordHash: otherPassword,
           birthDate: new Date("1991-02-02"),
           heightCm: 165,
@@ -340,16 +324,11 @@ describe("Users routes", () => {
         },
       });
 
-      // Log in as this other user
-      const loginRes = await request(app)
-        .post("/auth/login")
-        .send({ email: "other@example.com", password: "otherpass" });
-
-      const otherToken = loginRes.body.token;
+      const otherToken = "Bearer " + generateTestJWT(otherUser.id);
 
       const res = await request(app)
         .delete(`/users/${user.id}`)
-        .set("Authorization", `Bearer ${otherToken}`);
+        .set("Authorization", otherToken);
 
       expect(res.status).toBe(403);
       expect(res.body).toHaveProperty("error");
