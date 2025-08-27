@@ -2,15 +2,22 @@ const { Router } = require("express");
 const asyncErrorHandler = require("../middleware/asyncErrorHandler");
 const auth = require("../middleware/authenticate");
 const controller = require("../controllers/workoutTemplates");
+const validate = require("../middleware/validate");
+const validator = require("../validators/workoutTemplates");
+const commonValidator = require("../validators/common");
 
 const router = Router({ mergeParams: true });
 
 router.use(auth);
 
-router.post("/", asyncErrorHandler(controller.create));
 router.get("/", asyncErrorHandler(controller.readAllForUser));
-router.get("/:templateId", asyncErrorHandler(controller.readForUserById));
-router.put("/:templateId", asyncErrorHandler(controller.update));
-router.delete("/:templateId", asyncErrorHandler(controller.delete));
+
+router.get("/:templateId", validate(commonValidator.idParam("workoutTemplateId")), asyncErrorHandler(controller.readForUserById));
+
+router.post("/", validate(validator.create), asyncErrorHandler(controller.create));
+
+router.patch("/:templateId", validate([...commonValidator.idParam("workoutTemplateId"), ...validator.update]), asyncErrorHandler(controller.update));
+
+router.delete("/:templateId", validate(commonValidator.idParam("workoutTemplateId")), asyncErrorHandler(controller.delete));
 
 module.exports = router;
