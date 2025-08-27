@@ -1,19 +1,23 @@
-const workoutTemplate = require("../models/WorkoutTemplate");
+const prisma = require("../prisma/prisma");
 
 exports.readAllForUser = async (req, res) => {
-  const userId = req.params.userId;
-  const workoutTemplates = await workoutTemplate.getAllByUserId(userId);
-
+  const userId = req.user.id;
+  const muscleGroups = await prisma.WorkoutTemplate.findMany({
+    where: { userId },
+    include: { exercises: true },
+  });
   res.status(200).json({
     message: "Workout Templates successfully retrieved",
-    workoutTemplates, // will be [] if no exercises
+    workoutTemplates,
   });
 };
 
 exports.readForUserById = async (req, res) => {
-  const { userId, templateId } = req.params;
-  const existingWorkoutTemplate =
-    await workoutTemplate.getByIdWithExercises(templateId);
+  const userId = req.user.id;
+  const workoutTemplateId = req.validated.params.workoutTemplateId;
+
+  
+  const existingWorkoutTemplate = await workoutTemplate.getByIdWithExercises(templateId);
 
   if (
     !existingWorkoutTemplate ||
@@ -29,9 +33,7 @@ exports.readForUserById = async (req, res) => {
 };
 
 exports.create = async (req, res) => {
-  // TODO ADD INPUT VALIDATION
-
-  const userId = req.params.userId;
+  const userId = req.user.id;
   const { name, exercises = [] } = req.body;
 
   const newWorkoutTemplate = await workoutTemplate.createWithExercises(
@@ -47,9 +49,9 @@ exports.create = async (req, res) => {
 };
 
 exports.update = async (req, res) => {
-  // TODO: ADD INPUT VALIDATION
-
-  const { userId, templateId } = req.params;
+  const userId = req.user.id;
+  const workoutTemplateId = req.validated.params.workoutTemplateId;
+  
   const { exercises = [], ...fieldsToUpdate } = req.body;
 
   const updatedWorkoutTemplate = await workoutTemplate.updateWithExercises(
@@ -66,7 +68,8 @@ exports.update = async (req, res) => {
 };
 
 exports.delete = async (req, res) => {
-  const { userId, templateId } = req.params;
+  const userId = req.user.id;
+  const workoutTemplateId = req.validated.params.workoutTemplateId;
 
   const deletedWorkoutTemplate = await workoutTemplate.delete(
     templateId,
