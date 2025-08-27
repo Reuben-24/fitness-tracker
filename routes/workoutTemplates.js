@@ -12,12 +12,12 @@ router.use(auth);
 
 router.get("/", asyncErrorHandler(controller.readAllForUser));
 
-router.get("/:templateId", validate(commonValidator.idParam("workoutTemplateId")), asyncErrorHandler(controller.readForUserById));
+router.get("/:workoutTemplateId", validate(commonValidator.idParam("workoutTemplateId")), asyncErrorHandler(controller.readForUserById));
 
 router.post("/", validate(validator.create), asyncErrorHandler(controller.create));
 
-router.patch("/:templateId", validate([...commonValidator.idParam("workoutTemplateId"), ...validator.update]), asyncErrorHandler(controller.update));
+router.patch("/:workoutTemplateId", validate([...commonValidator.idParam("workoutTemplateId"), ...validator.update]), asyncErrorHandler(controller.update));
 
-router.delete("/:templateId", validate(commonValidator.idParam("workoutTemplateId")), asyncErrorHandler(controller.delete));
+router.delete("/:workoutTemplateId", validate(commonValidator.idParam("workoutTemplateId")), asyncErrorHandler(controller.delete));
 
 module.exports = router;
