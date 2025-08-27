@@ -1,57 +1,59 @@
-const muscleGroup = require("../models/MuscleGroup");
-
-exports.create = async (req, res) => {
-  // TO DO ADD INPUT VALIDATION
-  const userId = req.params.userId;
-  const { name } = req.body;
-  const data = { user_id: userId, name };
-  const newMuscleGroup = await muscleGroup.create(data);
-  res.status(201).json({
-    message: "Muscle Group successfully created",
-    muscleGroup: newMuscleGroup,
-  });
-};
+const prisma = require("../prisma/prisma");
 
 exports.readAllForUser = async (req, res) => {
-  const userId = req.params.userId;
-  const muscleGroups = await muscleGroup.getAllByUserId(userId);
-
+  const userId = req.user.id;
+  const muscleGroups = await prisma.MuscleGroup.findMany({
+    where: { userId },
+    include: { exercises: true },
+  });
   res.status(200).json({
     message: "Muscle Groups successfully retrieved",
-    muscleGroups, // will be [] if no exercises
+    muscleGroups,
   });
 };
 
 exports.readForUserById = async (req, res) => {
-  const { userId, muscleGroupId } = req.params;
-  const existingMuscleGroup = await muscleGroup.getById(muscleGroupId);
-
-  if (!existingMuscleGroup || existingMuscleGroup.user_id !== Number(userId)) {
+  const userId = req.user.id;
+  const muscleGroupId = req.validated.params.muscleGroupId;
+  const muscleGroup = await prisma.MuscleGroup.findFirst({
+    where: { id: muscleGroupId, userId },
+    include: { exercises: true },
+  });
+  if (!muscleGroup)
     return res.status(404).json({ error: "Muscle Group not found" });
-  }
-
   res.status(200).json({
     message: "Muscle Group successfully retrieved",
-    muscleGroup: existingMuscleGroup,
+    muscleGroup,
+  });
+};
+
+exports.create = async (req, res) => {
+  const userId = req.user.id;
+  const { name } = req.validated.body;
+  const muscleGroup = await prisma.MuscleGroup.create({
+    data: { userId, name },
+    include: { exercises: true },
+  });
+  res.status(201).json({
+    message: "Muscle Group successfully created",
+    muscleGroup,
   });
 };
 
 exports.update = async (req, res) => {
-  // TODO: ADD INPUT VALIDATION
-  const { userId, muscleGroupId } = req.params;
-  const fieldsToUpdate = { ...req.body };
-
-  const existingMuscleGroup = await muscleGroup.getById(muscleGroupId);
-
-  if (!existingMuscleGroup || existingMuscleGroup.user_id !== Number(userId)) {
+  const userId = req.user.id;
+  const muscleGroupId = req.validated.params.muscleGroupId;
+  const fieldsToUpdate = { ...req.validated.body };
+  const existingMuscleGroup = await prisma.MuscleGroup.findFirst({
+    where: { id: muscleGroupId, userId },
+  });
+  if (!existingMuscleGroup)
     return res.status(404).json({ error: "Muscle Group not found" });
-  }
-
-  const updatedMuscleGroup = await muscleGroup.update(
-    muscleGroupId,
-    fieldsToUpdate,
-  );
-
+  const updatedMuscleGroup = await prisma.MuscleGroup.update({
+    where: { id: muscleGroupId },
+    data: { ...fieldsToUpdate },
+    include: { exercises: true },
+  });
   res.status(200).json({
     message: "Muscle Group successfully updated",
     muscleGroup: updatedMuscleGroup,
@@ -59,17 +61,15 @@ exports.update = async (req, res) => {
 };
 
 exports.delete = async (req, res) => {
-  const { userId, muscleGroupId } = req.params;
-
-  const existingMuscleGroup = await muscleGroup.getById(muscleGroupId);
-  if (!existingMuscleGroup || existingMuscleGroup.user_id !== Number(userId)) {
-    return res.status(404).json({ error: "Muscle Group not found" });
-  }
-
-  const deletedMuscleGroup = await muscleGroup.delete(muscleGroupId);
-
+  const userId = req.user.id;
+  const { muscleGroupId } = req.validated.params;
+  const muscleGroup = await prisma.MuscleGroup.findFirst({
+    where: { id: muscleGroupId, userId },
+  });
+  if (!muscleGroup) return res.status(404).json({ error: "Muscle Group not found" });
+  await prisma.MuscleGroup.delete({ where: { id: muscleGroup.id } });
   res.status(200).json({
     message: "Muscle Group successfully deleted",
-    muscleGroup: deletedMuscleGroup,
+    muscleGroup,
   });
 };
