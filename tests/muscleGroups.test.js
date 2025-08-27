@@ -96,4 +96,20 @@ describe("Exercise routes", () => {
       expect(fetchedMG2.exercises.length).toBe(0);
     });
   });
+
+  describe("GET /muscleGroups/:muscleGroupId", () => {
+    
+  }
+
+  describe("POST /muscleGroups", () => {
+    
+  }
+
+  describe("PATCH /muscleGroups/:muscleGroupId", () => {
+    
+  }
+
+  describe("DELETE /muscleGroups/:muscleGroupId", () => {
+    
+  }
 });
