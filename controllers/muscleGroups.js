@@ -66,7 +66,8 @@ exports.delete = async (req, res) => {
   const muscleGroup = await prisma.MuscleGroup.findFirst({
     where: { id: muscleGroupId, userId },
   });
-  if (!muscleGroup) return res.status(404).json({ error: "Muscle Group not found" });
+  if (!muscleGroup)
+    return res.status(404).json({ error: "Muscle Group not found" });
   await prisma.MuscleGroup.delete({ where: { id: muscleGroup.id } });
   res.status(200).json({
     message: "Muscle Group successfully deleted",

@@ -16,8 +16,8 @@ exports.readForUserById = async (req, res) => {
   const userId = req.user.id;
   const workoutTemplateId = req.validated.params.workoutTemplateId;
 
-  
-  const existingWorkoutTemplate = await workoutTemplate.getByIdWithExercises(templateId);
+  const existingWorkoutTemplate =
+    await workoutTemplate.getByIdWithExercises(templateId);
 
   if (
     !existingWorkoutTemplate ||
@@ -51,7 +51,7 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
   const userId = req.user.id;
   const workoutTemplateId = req.validated.params.workoutTemplateId;
-  
+
   const { exercises = [], ...fieldsToUpdate } = req.body;
 
   const updatedWorkoutTemplate = await workoutTemplate.updateWithExercises(

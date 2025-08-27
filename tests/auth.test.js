@@ -48,7 +48,7 @@ describe("Auth routes", () => {
       // Verify the refresh token
       const decodedRefresh = jwt.verify(
         res.body.refreshToken,
-        process.env.JWT_REFRESH_SECRET
+        process.env.JWT_REFRESH_SECRET,
       );
       expect(decodedRefresh).toHaveProperty("userId");
       expect(decodedRefresh.userId).toBe(testUser.id);

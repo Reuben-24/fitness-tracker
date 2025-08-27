@@ -9,19 +9,19 @@ const router = Router();
 router.post(
   "/login",
   validate(validator.login),
-  asyncErrorHandler(controller.login)
+  asyncErrorHandler(controller.login),
 );
 
 router.post(
   "/logout",
   validate(validator.logout),
-  asyncErrorHandler(controller.logout)
+  asyncErrorHandler(controller.logout),
 );
 
 router.post(
   "/refresh-token",
   validate(validator.refreshToken),
-  asyncErrorHandler(controller.refreshToken)
+  asyncErrorHandler(controller.refreshToken),
 );
 
 module.exports = router;

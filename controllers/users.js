@@ -56,7 +56,7 @@ exports.update = async (req, res) => {
     const saltRounds = 10;
     fieldsToUpdate.passwordHash = await bcrypt.hash(
       fieldsToUpdate.password,
-      saltRounds
+      saltRounds,
     );
     delete fieldsToUpdate.password; // remove plain password
   }

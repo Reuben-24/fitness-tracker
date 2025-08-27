@@ -22,7 +22,7 @@ exports.login = async (req, res) => {
   const refreshToken = jwt.sign(
     { userId: user.id },
     process.env.JWT_REFRESH_SECRET,
-    { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN_SEC }
+    { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN_SEC },
   );
 
   const expiresInSec = parseInt(process.env.JWT_REFRESH_EXPIRES_IN_SEC);
@@ -53,7 +53,9 @@ exports.logout = async (req, res) => {
   }
 
   // Get all stored refresh tokens for this user
-  const storedTokens = await prisma.RefreshToken.findMany({where: { userId: payload.userId }});
+  const storedTokens = await prisma.RefreshToken.findMany({
+    where: { userId: payload.userId },
+  });
 
   // Find the token hash that matches
   let matchedToken = null;
@@ -82,7 +84,9 @@ exports.refreshToken = async (req, res) => {
   }
 
   // Get all stored refresh tokens for this user
-  const storedTokens = await prisma.RefreshToken.findMany({where: { userId: payload.userId }});
+  const storedTokens = await prisma.RefreshToken.findMany({
+    where: { userId: payload.userId },
+  });
 
   // Find the token hash that matches
   let matchedToken = null;
@@ -93,7 +97,8 @@ exports.refreshToken = async (req, res) => {
     }
   }
 
-  if (!matchedToken) return res.status(401).json({ error: "Invalid refresh token" });
+  if (!matchedToken)
+    return res.status(401).json({ error: "Invalid refresh token" });
 
   // Issue new access token
   const token = jwt.sign({ userId: payload.userId }, process.env.JWT_SECRET, {

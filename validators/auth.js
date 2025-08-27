@@ -7,8 +7,11 @@ exports.login = [
 
 exports.logout = exports.refreshToken = [
   body("refreshToken")
-    .exists().withMessage("Refresh token is required")
+    .exists()
+    .withMessage("Refresh token is required")
     .bail() // stop validation chain if missing
-    .isString().withMessage("Refresh token must be a string")
-    .notEmpty().withMessage("Refresh token cannot be empty"),
+    .isString()
+    .withMessage("Refresh token must be a string")
+    .notEmpty()
+    .withMessage("Refresh token cannot be empty"),
 ];

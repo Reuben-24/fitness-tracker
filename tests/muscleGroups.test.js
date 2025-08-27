@@ -82,10 +82,10 @@ describe("Exercise routes", () => {
       expect(res.body.muscleGroups.length).toBeGreaterThanOrEqual(2);
 
       const fetchedMG1 = res.body.muscleGroups.find(
-        (mg) => mg.id === muscleGroup1.id
+        (mg) => mg.id === muscleGroup1.id,
       );
       const fetchedMG2 = res.body.muscleGroups.find(
-        (mg) => mg.id === muscleGroup2.id
+        (mg) => mg.id === muscleGroup2.id,
       );
 
       expect(fetchedMG1).toBeDefined();
@@ -121,9 +121,7 @@ describe("Exercise routes", () => {
     });
 
     it("returns 400 if muscleGroupId is invalid", async () => {
-      const res = await request(app)
-        .get("/muscle-groups/cat")
-        .set(authHeader);
+      const res = await request(app).get("/muscle-groups/cat").set(authHeader);
       expect(res.status).toBe(400);
     });
 
@@ -145,7 +143,7 @@ describe("Exercise routes", () => {
       expect(res.body.muscleGroup).toHaveProperty("name", "Chest");
       expect(Array.isArray(res.body.muscleGroup.exercises)).toBe(true);
     });
-  }); 
+  });
 
   describe("POST /muscle-groups", () => {
     let otherUser;
@@ -166,7 +164,9 @@ describe("Exercise routes", () => {
           gender: "female",
         },
       });
-      otherAuthHeader = { Authorization: "Bearer " + generateTestJWT(otherUser.id) };
+      otherAuthHeader = {
+        Authorization: "Bearer " + generateTestJWT(otherUser.id),
+      };
     });
 
     afterEach(async () => {

@@ -42,9 +42,7 @@ describe("Exercise routes", () => {
 
   describe("GET /exercises", () => {
     it("returns 401 if user is unauthenticated", async () => {
-      const res = await request(app)
-        .get("/exercises")
-        .expect(401);
+      const res = await request(app).get("/exercises").expect(401);
 
       expect(res.body.error).toBeDefined();
     });
@@ -89,12 +87,12 @@ describe("Exercise routes", () => {
       expect(res.body.exercises.length).toBeGreaterThanOrEqual(1);
 
       const fetchedExercise = res.body.exercises.find(
-        (ex) => ex.id === exercise.id
+        (ex) => ex.id === exercise.id,
       );
       expect(fetchedExercise).toBeDefined();
       expect(fetchedExercise.muscleGroups.length).toBe(2);
       expect(fetchedExercise.muscleGroups.map((mg) => mg.name)).toEqual(
-        expect.arrayContaining(["Biceps", "Triceps"])
+        expect.arrayContaining(["Biceps", "Triceps"]),
       );
     });
   });
@@ -134,10 +132,7 @@ describe("Exercise routes", () => {
           description: "Classic bicep exercise",
           equipment: "Dumbells",
           muscleGroups: {
-            connect: [
-              { id: mg1.id },
-              { id: mg2.id },
-            ],
+            connect: [{ id: mg1.id }, { id: mg2.id }],
           },
         },
         include: { muscleGroups: true },
@@ -147,10 +142,11 @@ describe("Exercise routes", () => {
         .get(`/exercises/${exercise.id}`)
         .set("Authorization", token);
 
-      console.log(res.body)
-
       expect(res.status).toBe(200);
-      expect(res.body).toHaveProperty("message", "Exercise successfully retrieved");
+      expect(res.body).toHaveProperty(
+        "message",
+        "Exercise successfully retrieved",
+      );
       expect(res.body).toHaveProperty("exercise");
       expect(res.body.exercise.id).toBe(exercise.id);
       expect(Array.isArray(res.body.exercise.muscleGroups)).toBe(true);
@@ -217,7 +213,7 @@ describe("Exercise routes", () => {
       expect(res.body.exercise.name).toBe("Bench Press");
       expect(res.body.exercise.muscleGroups.length).toBe(2);
       expect(res.body.exercise.muscleGroups.map((mg) => mg.name)).toEqual(
-        expect.arrayContaining([chest.name, triceps.name])
+        expect.arrayContaining([chest.name, triceps.name]),
       );
     });
   });
@@ -259,7 +255,10 @@ describe("Exercise routes", () => {
         .send({ name: "Updated Push Up", description: "Modified description" });
 
       expect(res.status).toBe(200);
-      expect(res.body).toHaveProperty("message", "Exercise successfully updated");
+      expect(res.body).toHaveProperty(
+        "message",
+        "Exercise successfully updated",
+      );
       expect(res.body.exercise.id).toBe(exerciseToUpdate.id);
       expect(res.body.exercise.name).toBe("Updated Push Up");
       expect(res.body.exercise.description).toBe("Modified description");
@@ -297,15 +296,18 @@ describe("Exercise routes", () => {
         });
 
       expect(res.status).toBe(200);
-      expect(res.body).toHaveProperty("message", "Exercise successfully updated");
+      expect(res.body).toHaveProperty(
+        "message",
+        "Exercise successfully updated",
+      );
       expect(res.body.exercise.id).toBe(exerciseToUpdate.id);
       expect(res.body.exercise.name).toBe("Incline Bench Press");
 
       const returnedMuscleGroups = res.body.exercise.muscleGroups.map(
-        (mg) => mg.name
+        (mg) => mg.name,
       );
       expect(returnedMuscleGroups).toEqual(
-        expect.arrayContaining([mg2.name, mg3.name])
+        expect.arrayContaining([mg2.name, mg3.name]),
       );
       expect(returnedMuscleGroups).not.toContain(mg1.name);
     });
@@ -347,7 +349,7 @@ describe("Exercise routes", () => {
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty(
         "message",
-        "Exercise successfully deleted"
+        "Exercise successfully deleted",
       );
       expect(res.body.exercise.id).toBe(exerciseToDelete.id);
 

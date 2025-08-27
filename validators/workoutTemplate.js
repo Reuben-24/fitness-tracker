@@ -1,6 +1,5 @@
 const { body } = require("express-validator");
 
-exports.create = []
+exports.create = [];
 
-exports.update = []
-
+exports.update = [];

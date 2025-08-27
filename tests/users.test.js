@@ -130,7 +130,9 @@ describe("Users routes", () => {
       expect(res.status).toBe(403); // because authorizeParam() should block mismatched IDs
       expect(res.body).toHaveProperty("error");
 
-      await prisma.RefreshToken.deleteMany({ where: { userId: otherUser?.id } });
+      await prisma.RefreshToken.deleteMany({
+        where: { userId: otherUser?.id },
+      });
       await prisma.User.deleteMany({ where: { id: otherUser?.id } });
     });
   });
@@ -186,7 +188,7 @@ describe("Users routes", () => {
       expect(res.body.user.email).toBe("johnnyb@example.com");
       const isPasswordCorrect = await bcrypt.compare(
         "shd09sdhidosdhio",
-        res.body.user.passwordHash
+        res.body.user.passwordHash,
       );
       expect(isPasswordCorrect).toBe(true);
       expect(new Date(res.body.user.birthDate)).toEqual(new Date("1990-01-01"));
@@ -289,10 +291,12 @@ describe("Users routes", () => {
       expect(res.body.message).toBe("User deleted successfully");
 
       // Confirm user no longer exists
-      const deletedUser = await prisma.User.findUnique({ where: { id: user.id } });
+      const deletedUser = await prisma.User.findUnique({
+        where: { id: user.id },
+      });
       expect(deletedUser).toBeNull();
     });
-    
+
     it("should return 401 if not logged in", async () => {
       const res = await request(app).delete(`/users/${user.id}`);
 
@@ -333,8 +337,10 @@ describe("Users routes", () => {
       expect(res.status).toBe(403);
       expect(res.body).toHaveProperty("error");
 
-      await prisma.RefreshToken.deleteMany({ where: { userId: otherUser?.id } });
+      await prisma.RefreshToken.deleteMany({
+        where: { userId: otherUser?.id },
+      });
       await prisma.User.deleteMany({ where: { id: otherUser?.id } });
     });
-  })
+  });
 });

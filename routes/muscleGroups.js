@@ -15,25 +15,25 @@ router.get("/", asyncErrorHandler(controller.readAllForUser));
 router.get(
   "/:muscleGroupId",
   validate(commonValidator.idParam("muscleGroupId")),
-  asyncErrorHandler(controller.readForUserById)
+  asyncErrorHandler(controller.readForUserById),
 );
 
 router.post(
   "/",
   validate(validator.create),
-  asyncErrorHandler(controller.create)
+  asyncErrorHandler(controller.create),
 );
 
 router.patch(
   "/:muscleGroupId",
   validate([...commonValidator.idParam("muscleGroupId"), ...validator.update]),
-  asyncErrorHandler(controller.update)
+  asyncErrorHandler(controller.update),
 );
 
 router.delete(
   "/:muscleGroupId",
   validate(commonValidator.idParam("muscleGroupId")),
-  asyncErrorHandler(controller.delete)
+  asyncErrorHandler(controller.delete),
 );
 
 module.exports = router;
