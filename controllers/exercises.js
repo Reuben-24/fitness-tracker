@@ -55,9 +55,8 @@ exports.update = async (req, res) => {
   const existingExercise = await prisma.Exercise.findFirst({
     where: { id: exerciseId, userId },
   });
-  if (!existingExercise) {
+  if (!existingExercise)
     return res.status(404).json({ error: "Exercise not found" });
-  }
   const updatedExercise = await prisma.Exercise.update({
     where: { id: exerciseId },
     data: {
