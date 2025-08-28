@@ -29,12 +29,12 @@ describe("Exercise routes", () => {
   afterAll(async () => {
     // Clean up test user and associated data
     await prisma.User.deleteMany({ where: { id: user?.id } });
-    await prisma.$disconnect();
     await prisma.Exercise.deleteMany({ where: { userId: user.id } });
     await prisma.MuscleGroup.deleteMany({ where: { userId: user.id } });
+    await prisma.$disconnect();
   });
 
-  describe("GET /muscleGroups", () => {
+  describe("GET /muscle-groups", () => {
     let muscleGroup1;
     let muscleGroup2;
 

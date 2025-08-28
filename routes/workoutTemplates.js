@@ -6,7 +6,7 @@ const validate = require("../middleware/validate");
 const validator = require("../validators/workoutTemplates");
 const commonValidator = require("../validators/common");
 
-const router = Router({ mergeParams: true });
+const router = Router();
 
 router.use(auth);
 

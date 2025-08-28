@@ -8,8 +8,17 @@ exports.create = [
     .withMessage("Name is required and must be 1–100 characters"),
 
   body("templateExercises")
-    .isArray({ min: 1 })
-    .withMessage("At least one template exercise is required"),
+    .optional({ nullable: true })
+    .isArray()
+    .withMessage("templateExercises must be an array")
+    .custom(
+      (arr) =>
+        arr.length === 0 ||
+        arr.every((te) => te.exerciseId && te.sets && te.reps && te.position),
+    )
+    .withMessage(
+      "Each templateExercise must have exerciseId, sets, reps, position",
+    ),
 
   body("templateExercises.*.exerciseId")
     .isInt({ gt: 0 })
@@ -26,7 +35,9 @@ exports.create = [
   body("templateExercises.*.weight")
     .optional({ nullable: true })
     .isDecimal({ decimal_digits: "0,2" })
-    .withMessage("Weight must be a valid decimal number with up to 2 decimal places"),
+    .withMessage(
+      "Weight must be a valid decimal number with up to 2 decimal places",
+    ),
 
   body("templateExercises.*.position")
     .isInt({ gt: 0 })
@@ -42,9 +53,18 @@ exports.update = [
     .withMessage("Name must be 1–100 characters if provided"),
 
   body("templateExercises")
-    .optional()
+    .optional({ nullable: true })
     .isArray()
-    .withMessage("Template exercises must be an array if provided"),
+    .withMessage("Template exercises must be an array if provided")
+    .bail()
+    .custom(
+      (arr) =>
+        arr.length === 0 ||
+        arr.every((te) => te.exerciseId && te.sets && te.reps && te.position),
+    )
+    .withMessage(
+      "Each templateExercise must have exerciseId, sets, reps, position if provided",
+    ),
 
   body("templateExercises.*.exerciseId")
     .optional()
@@ -64,7 +84,9 @@ exports.update = [
   body("templateExercises.*.weight")
     .optional({ nullable: true })
     .isDecimal({ decimal_digits: "0,2" })
-    .withMessage("Weight must be a valid decimal number with up to 2 decimal places if provided"),
+    .withMessage(
+      "Weight must be a valid decimal number with up to 2 decimal places if provided",
+    ),
 
   body("templateExercises.*.position")
     .optional()
