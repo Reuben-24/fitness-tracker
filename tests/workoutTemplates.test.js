@@ -342,4 +342,227 @@ describe("Workout Template routes", () => {
       await prisma.User.delete({ where: { id: user2.id } });
     });
   });
+
+  describe("PATCH /workout-templates/:workoutTemplateId", () => {
+    let template, ex1, ex2;
+
+    beforeEach(async () => {
+      // Create muscle groups
+      const mg = await prisma.MuscleGroup.create({
+        data: { userId: user.id, name: "Chest" },
+      });
+      // Create exercises
+      ex1 = await prisma.Exercise.create({
+        data: {
+          userId: user.id,
+          name: "Bench Press",
+          muscleGroups: { connect: [{ id: mg.id }] },
+        },
+      });
+      ex2 = await prisma.Exercise.create({
+        data: {
+          userId: user.id,
+          name: "Push Up",
+          muscleGroups: { connect: [{ id: mg.id }] },
+        },
+      });
+      // Create workout template with one exercise
+      template = await prisma.WorkoutTemplate.create({
+        data: {
+          userId: user.id,
+          name: "Upper Body",
+          templateExercises: {
+            create: [{ exerciseId: ex1.id, sets: 3, reps: 10, position: 1 }],
+          },
+        },
+        include: { templateExercises: true },
+      });
+    });
+
+    it("returns 401 if user is unauthenticated", async () => {
+      const res = await request(app)
+        .patch("/workout-templates/1")
+        .send({ name: "Updated" });
+
+      expect(res.status).toBe(401);
+      expect(res.body.error).toBeDefined();
+    });
+
+    it("returns 400 if workoutTemplateId is invalid", async () => {
+      const res = await request(app)
+        .patch("/workout-templates/not-a-number")
+        .set(authHeader)
+        .send({ name: "Updated" });
+
+      expect(res.status).toBe(400);
+      expect(res.body.errors).toBeDefined();
+    });
+
+    it("returns 404 if the workout template does not exist for this user", async () => {
+      const res = await request(app)
+        .patch("/workout-templates/999999")
+        .set(authHeader)
+        .send({ name: "Updated" });
+
+      expect(res.status).toBe(404);
+      expect(res.body.error).toBe("Workout Template not found");
+    });
+
+    it("returns 400 if the payload is invalid", async () => {
+      // First create a template to update
+      const template = await prisma.WorkoutTemplate.create({
+        data: { userId: user.id, name: "Old Name" },
+      });
+
+      // Invalid sets (must be positive integer)
+      const res = await request(app)
+        .patch(`/workout-templates/${template.id}`)
+        .set(authHeader)
+        .send({
+          templateExercises: [
+            { exerciseId: 1, sets: "not-an-int", reps: 10, position: 1 },
+          ],
+        });
+
+      expect(res.status).toBe(400);
+      expect(res.body.errors).toBeDefined();
+    });
+
+    it("omitting templateExercises leaves existing exercises unchanged", async () => {
+      const payload = { name: "Upper Body Updated" };
+
+      const res = await request(app)
+        .patch(`/workout-templates/${template.id}`)
+        .set(authHeader)
+        .send(payload)
+        .expect(200);
+
+      expect(res.body.workoutTemplate.name).toBe("Upper Body Updated");
+      expect(res.body.workoutTemplate.templateExercises.length).toBe(1);
+      expect(res.body.workoutTemplate.templateExercises[0].exerciseId).toBe(
+        ex1.id,
+      );
+    });
+
+    it("sending templateExercises: [] clears all exercises", async () => {
+      const payload = { templateExercises: [] };
+
+      const res = await request(app)
+        .patch(`/workout-templates/${template.id}`)
+        .set(authHeader)
+        .send(payload)
+        .expect(200);
+
+      expect(res.body.workoutTemplate.templateExercises.length).toBe(0);
+    });
+
+    it("sending a new set of templateExercises replaces existing ones", async () => {
+      const payload = {
+        templateExercises: [
+          { exerciseId: ex2.id, sets: 4, reps: 12, position: 1 },
+        ],
+      };
+
+      const res = await request(app)
+        .patch(`/workout-templates/${template.id}`)
+        .set(authHeader)
+        .send(payload)
+        .expect(200);
+
+      expect(res.body.workoutTemplate.templateExercises.length).toBe(1);
+      expect(res.body.workoutTemplate.templateExercises[0].exerciseId).toBe(
+        ex2.id,
+      );
+      expect(res.body.workoutTemplate.templateExercises[0].sets).toBe(4);
+      expect(res.body.workoutTemplate.templateExercises[0].reps).toBe(12);
+    });
+  });
+
+  describe("DELETE /workout-templates/:workoutTemplateId", () => {
+    it("returns 401 if user is unauthenticated", async () => {
+      const res = await request(app).delete("/workout-templates/1");
+      expect(res.status).toBe(401);
+      expect(res.body.error).toBeDefined();
+    });
+
+    it("returns 400 if workoutTemplateId is invalid", async () => {
+      const res = await request(app)
+        .delete("/workout-templates/invalid-id")
+        .set(authHeader);
+      expect(res.status).toBe(400);
+      expect(res.body.errors).toBeDefined();
+    });
+
+    it("returns 404 if the workout template does not exist for the user", async () => {
+      const res = await request(app)
+        .delete("/workout-templates/999999")
+        .set(authHeader);
+      expect(res.status).toBe(404);
+      expect(res.body.error).toBe("Workout Template not found");
+    });
+
+    it("successfully deletes a workout template and returns it", async () => {
+      // Create a workout template for the user
+      const ex = await prisma.Exercise.create({
+        data: {
+          userId: user.id,
+          name: "Bench Press",
+        },
+      });
+      const template = await prisma.WorkoutTemplate.create({
+        data: {
+          userId: user.id,
+          name: "To Be Deleted",
+          templateExercises: {
+            create: [{ exerciseId: ex.id, sets: 3, reps: 10, position: 1 }],
+          },
+        },
+        include: { templateExercises: true },
+      });
+
+      const res = await request(app)
+        .delete(`/workout-templates/${template.id}`)
+        .set(authHeader)
+        .expect(200);
+
+      expect(res.body.message).toBe("Workout Template successfully deleted");
+      expect(res.body.workoutTemplate.id).toBe(template.id);
+      expect(res.body.workoutTemplate.name).toBe("To Be Deleted");
+
+      // Verify it was actually deleted
+      const check = await prisma.WorkoutTemplate.findUnique({
+        where: { id: template.id },
+      });
+      expect(check).toBeNull();
+    });
+
+    it("does not allow a user to delete another user's template", async () => {
+      // Create a second user
+      const passwordHash = await bcrypt.hash("password123", 10);
+      const otherUser = await prisma.User.create({
+        data: {
+          firstName: "Other",
+          lastName: "User",
+          email: "other@example.com",
+          passwordHash,
+          birthDate: new Date("1990-01-01"),
+          heightCm: 175,
+          gender: "female",
+        },
+      });
+      const template = await prisma.WorkoutTemplate.create({
+        data: { userId: otherUser.id, name: "Other's Template" },
+      });
+
+      const res = await request(app)
+        .delete(`/workout-templates/${template.id}`)
+        .set(authHeader);
+
+      expect(res.status).toBe(404);
+      expect(res.body.error).toBe("Workout Template not found");
+
+      // Clean up
+      await prisma.User.delete({ where: { id: otherUser.id } });
+    });
+  });
 });

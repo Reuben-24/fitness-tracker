@@ -49,6 +49,10 @@ exports.create = async (req, res) => {
 };
 
 exports.update = async (req, res) => {
+  // If muscleGroupIds is undefined muscle group links will be unchanged
+  // If musceGroupIds = [] will remove all connected muscle groups
+  // If muscleGroupIds contains an array of valid ids, the existing muscle groups
+  // will be replaced by the new array
   const userId = req.user.id;
   const exerciseId = req.validated.params.exerciseId;
   const { muscleGroupIds, ...fieldsToUpdate } = req.validated.body;

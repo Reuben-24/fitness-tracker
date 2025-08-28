@@ -80,39 +80,68 @@ exports.create = async (req, res) => {
 };
 
 exports.update = async (req, res) => {
+  // If client omits templateExercises, leave them unchanged
+  // If client sends templateExercises: [], clear them all.
+  // If client sends an array with items, replace with that set.
+
   const userId = req.user.id;
   const workoutTemplateId = req.validated.params.workoutTemplateId;
   const { templateExercises, ...fieldsToUpdate } = req.validated.body;
+
+  // Check template exists and belongs to user
   const existingWorkoutTemplate = await prisma.WorkoutTemplate.findFirst({
     where: { id: workoutTemplateId, userId },
   });
   if (!existingWorkoutTemplate)
     return res.status(404).json({ error: "Workout Template not found" });
-  const updatedWorkoutTemplate = await prisma.WorkoutTemplate.update({
-    where: { id: workoutTemplateId },
-    data: {
-      ...fieldsToUpdate,
-      templateExercises: {
-        set: templateExercises.map((te) => ({
-          exerciseId: te.exerciseId,
-          sets: te.sets,
-          reps: te.reps,
-          weight: te.weight,
-          position: te.position,
-        })),
+
+  // Begin transaction
+  const updatedWorkoutTemplate = await prisma.$transaction(async (prisma) => {
+    // If templateExercises is provided
+    if (templateExercises !== undefined) {
+      // Delete all existing template exercises
+      await prisma.templateExercise.deleteMany({
+        where: { workoutTemplateId },
+      });
+
+      // If the array has items, create new ones
+      if (templateExercises.length > 0) {
+        await prisma.templateExercise.createMany({
+          data: templateExercises.map((te) => ({
+            workoutTemplateId,
+            exerciseId: te.exerciseId,
+            sets: te.sets,
+            reps: te.reps,
+            weight: te.weight,
+            position: te.position,
+          })),
+        });
+      }
+    }
+
+    // Update workout template fields (name, etc.)
+    return prisma.WorkoutTemplate.findUnique({
+      where: { id: workoutTemplateId },
+      include: {
+        templateExercises: {
+          include: { exercise: { include: { muscleGroups: true } } },
+          orderBy: { position: "asc" },
+        },
       },
-    },
-    include: {
-      templateExercises: {
+    }).then((template) =>
+      prisma.workoutTemplate.update({
+        where: { id: workoutTemplateId },
+        data: fieldsToUpdate,
         include: {
-          exercise: {
-            include: { muscleGroups: true },
+          templateExercises: {
+            include: { exercise: { include: { muscleGroups: true } } },
+            orderBy: { position: "asc" },
           },
         },
-        orderBy: { position: "asc" },
-      },
-    },
+      }),
+    );
   });
+
   res.status(200).json({
     message: "Workout Template successfully updated",
     workoutTemplate: updatedWorkoutTemplate,
