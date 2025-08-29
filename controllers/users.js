@@ -3,7 +3,7 @@ const prisma = require("../prisma/prisma");
 
 exports.read = async (req, res) => {
   const userId = req.user.id;
-  const user = await prisma.User.findUnique({ where: { id: userId } });
+  const user = await prisma.user.findUnique({ where: { id: userId } });
 
   if (!user) {
     return res.status(404).json({
@@ -25,7 +25,7 @@ exports.create = async (req, res) => {
   const passwordHash = await bcrypt.hash(password, saltRounds);
 
   try {
-    const user = await prisma.User.create({
+    const user = await prisma.user.create({
       data: {
         firstName,
         lastName,
@@ -62,7 +62,7 @@ exports.update = async (req, res) => {
   }
 
   try {
-    const user = await prisma.User.update({
+    const user = await prisma.user.update({
       where: { id: userId },
       data: fieldsToUpdate,
     });
@@ -83,7 +83,7 @@ exports.delete = async (req, res) => {
   const userId = req.user.id;
 
   try {
-    const user = await prisma.User.delete({ where: { id: userId } });
+    const user = await prisma.user.delete({ where: { id: userId } });
     res.status(200).json({ message: "User deleted successfully", user });
   } catch (err) {
     if (err.code === "P2025")

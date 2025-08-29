@@ -8,7 +8,7 @@ describe("Users routes", () => {
   describe("POST /users", () => {
     let createdUser;
     afterAll(async () => {
-      await prisma.User.deleteMany({ where: { id: createdUser?.id } });
+      await prisma.user.deleteMany({ where: { id: createdUser?.id } });
       await prisma.$disconnect();
     });
 
@@ -69,7 +69,7 @@ describe("Users routes", () => {
       // Create a test user
       const password = "password123";
       const passwordHash = await bcrypt.hash(password, 10);
-      user = await prisma.User.create({
+      user = await prisma.user.create({
         data: {
           firstName: "John",
           lastName: "Doe",
@@ -86,8 +86,8 @@ describe("Users routes", () => {
     });
 
     afterAll(async () => {
-      await prisma.RefreshToken.deleteMany({ where: { userId: user?.id } });
-      await prisma.User.deleteMany({ where: { id: user?.id } });
+      await prisma.refreshToken.deleteMany({ where: { userId: user?.id } });
+      await prisma.user.deleteMany({ where: { id: user?.id } });
       await prisma.$disconnect();
     });
 
@@ -111,7 +111,7 @@ describe("Users routes", () => {
       // Create another user to simulate "other profile"
       const password = "password123";
       const passwordHash = await bcrypt.hash(password, 10);
-      const otherUser = await prisma.User.create({
+      const otherUser = await prisma.user.create({
         data: {
           firstName: "Other",
           lastName: "User",
@@ -130,10 +130,10 @@ describe("Users routes", () => {
       expect(res.status).toBe(403); // because authorizeParam() should block mismatched IDs
       expect(res.body).toHaveProperty("error");
 
-      await prisma.RefreshToken.deleteMany({
+      await prisma.refreshToken.deleteMany({
         where: { userId: otherUser?.id },
       });
-      await prisma.User.deleteMany({ where: { id: otherUser?.id } });
+      await prisma.user.deleteMany({ where: { id: otherUser?.id } });
     });
   });
 
@@ -145,7 +145,7 @@ describe("Users routes", () => {
       // Create a test user
       const password = "password123";
       const passwordHash = await bcrypt.hash(password, 10);
-      user = await prisma.User.create({
+      user = await prisma.user.create({
         data: {
           firstName: "John",
           lastName: "Doe",
@@ -162,8 +162,8 @@ describe("Users routes", () => {
     });
 
     afterAll(async () => {
-      await prisma.RefreshToken.deleteMany({ where: { userId: user?.id } });
-      await prisma.User.deleteMany({ where: { id: user?.id } });
+      await prisma.refreshToken.deleteMany({ where: { userId: user?.id } });
+      await prisma.user.deleteMany({ where: { id: user?.id } });
       await prisma.$disconnect();
     });
 
@@ -225,7 +225,7 @@ describe("Users routes", () => {
       const password = "password123";
       const passwordHash = await bcrypt.hash(password, 10);
       // create another user
-      const other = await prisma.User.create({
+      const other = await prisma.user.create({
         data: {
           firstName: "Other",
           lastName: "User",
@@ -247,8 +247,8 @@ describe("Users routes", () => {
       expect(res.status).toBe(403);
       expect(res.body).toHaveProperty("error");
 
-      await prisma.User.deleteMany({ where: { id: other.id } });
-      await prisma.RefreshToken.deleteMany({ where: { userId: other.id } });
+      await prisma.user.deleteMany({ where: { id: other.id } });
+      await prisma.refreshToken.deleteMany({ where: { userId: other.id } });
     });
   });
 
@@ -260,7 +260,7 @@ describe("Users routes", () => {
       // Create a test user
       const password = "password123";
       const passwordHash = await bcrypt.hash(password, 10);
-      user = await prisma.User.create({
+      user = await prisma.user.create({
         data: {
           firstName: "Jane",
           lastName: "Doe",
@@ -277,8 +277,8 @@ describe("Users routes", () => {
     });
 
     afterAll(async () => {
-      await prisma.RefreshToken.deleteMany({ where: { userId: user?.id } });
-      await prisma.User.deleteMany({ where: { id: user?.id } });
+      await prisma.refreshToken.deleteMany({ where: { userId: user?.id } });
+      await prisma.user.deleteMany({ where: { id: user?.id } });
       await prisma.$disconnect();
     });
 
@@ -291,7 +291,7 @@ describe("Users routes", () => {
       expect(res.body.message).toBe("User deleted successfully");
 
       // Confirm user no longer exists
-      const deletedUser = await prisma.User.findUnique({
+      const deletedUser = await prisma.user.findUnique({
         where: { id: user.id },
       });
       expect(deletedUser).toBeNull();
@@ -316,7 +316,7 @@ describe("Users routes", () => {
     it("should return 403 if user tries to delete another account", async () => {
       // Create another user
       const otherPassword = await bcrypt.hash("otherpass", 10);
-      const otherUser = await prisma.User.create({
+      const otherUser = await prisma.user.create({
         data: {
           firstName: "Other",
           lastName: "User",
@@ -337,10 +337,10 @@ describe("Users routes", () => {
       expect(res.status).toBe(403);
       expect(res.body).toHaveProperty("error");
 
-      await prisma.RefreshToken.deleteMany({
+      await prisma.refreshToken.deleteMany({
         where: { userId: otherUser?.id },
       });
-      await prisma.User.deleteMany({ where: { id: otherUser?.id } });
+      await prisma.user.deleteMany({ where: { id: otherUser?.id } });
     });
   });
 });

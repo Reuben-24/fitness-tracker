@@ -12,7 +12,7 @@ describe("Workout Template routes", () => {
     // Create a test user with auth
     const password = "password123";
     const passwordHash = await bcrypt.hash(password, 10);
-    user = await prisma.User.create({
+    user = await prisma.user.create({
       data: {
         firstName: "Test",
         lastName: "User",
@@ -28,7 +28,7 @@ describe("Workout Template routes", () => {
 
   afterEach(async () => {
     // Clean up test user
-    await prisma.User.deleteMany({ where: { id: user?.id } });
+    await prisma.user.deleteMany({ where: { id: user?.id } });
   });
 
   afterAll(async () => {
@@ -54,22 +54,22 @@ describe("Workout Template routes", () => {
 
     it("returns all templates, exercises and muscle groups for authenticated user", async () => {
       // Create muscle groups
-      const mg1 = await prisma.MuscleGroup.create({
+      const mg1 = await prisma.muscleGroup.create({
         data: { userId: user.id, name: "Chest" },
       });
-      const mg2 = await prisma.MuscleGroup.create({
+      const mg2 = await prisma.muscleGroup.create({
         data: { userId: user.id, name: "Back" },
       });
 
       // Create exercises linked to muscle groups
-      const ex1 = await prisma.Exercise.create({
+      const ex1 = await prisma.exercise.create({
         data: {
           userId: user.id,
           name: "Bench Press",
           muscleGroups: { connect: [{ id: mg1.id }] },
         },
       });
-      const ex2 = await prisma.Exercise.create({
+      const ex2 = await prisma.exercise.create({
         data: {
           userId: user.id,
           name: "Pull Up",
@@ -78,7 +78,7 @@ describe("Workout Template routes", () => {
       });
 
       // Create workout template with template exercises
-      const template = await prisma.WorkoutTemplate.create({
+      const template = await prisma.workoutTemplate.create({
         data: {
           userId: user.id,
           name: "Upper Body",
@@ -147,22 +147,22 @@ describe("Workout Template routes", () => {
 
     it("returns the workout template with its exercises and muscle groups for a valid ID", async () => {
       // Create muscle groups
-      const mg1 = await prisma.MuscleGroup.create({
+      const mg1 = await prisma.muscleGroup.create({
         data: { userId: user.id, name: "Chest" },
       });
-      const mg2 = await prisma.MuscleGroup.create({
+      const mg2 = await prisma.muscleGroup.create({
         data: { userId: user.id, name: "Back" },
       });
 
       // Create exercises
-      const ex1 = await prisma.Exercise.create({
+      const ex1 = await prisma.exercise.create({
         data: {
           userId: user.id,
           name: "Bench Press",
           muscleGroups: { connect: [{ id: mg1.id }] },
         },
       });
-      const ex2 = await prisma.Exercise.create({
+      const ex2 = await prisma.exercise.create({
         data: {
           userId: user.id,
           name: "Pull Up",
@@ -171,7 +171,7 @@ describe("Workout Template routes", () => {
       });
 
       // Create workout template
-      const template = await prisma.WorkoutTemplate.create({
+      const template = await prisma.workoutTemplate.create({
         data: {
           userId: user.id,
           name: "Upper Body",
@@ -238,21 +238,21 @@ describe("Workout Template routes", () => {
 
     it("creates a workout template with exercises and returns the full structure", async () => {
       // Create some exercises and muscle groups first
-      const mg1 = await prisma.MuscleGroup.create({
+      const mg1 = await prisma.muscleGroup.create({
         data: { userId: user.id, name: "Chest" },
       });
-      const mg2 = await prisma.MuscleGroup.create({
+      const mg2 = await prisma.muscleGroup.create({
         data: { userId: user.id, name: "Back" },
       });
 
-      const ex1 = await prisma.Exercise.create({
+      const ex1 = await prisma.exercise.create({
         data: {
           userId: user.id,
           name: "Bench Press",
           muscleGroups: { connect: [{ id: mg1.id }] },
         },
       });
-      const ex2 = await prisma.Exercise.create({
+      const ex2 = await prisma.exercise.create({
         data: {
           userId: user.id,
           name: "Pull Up",
@@ -312,7 +312,7 @@ describe("Workout Template routes", () => {
     it("allows duplicate template names across different users", async () => {
       // Create a second user
       const passwordHash = await bcrypt.hash("password123", 10);
-      const user2 = await prisma.User.create({
+      const user2 = await prisma.user.create({
         data: {
           firstName: "Other",
           lastName: "User",
@@ -339,7 +339,7 @@ describe("Workout Template routes", () => {
       expect(res.body.workoutTemplate.name).toBe("Full Body");
 
       // Clean up
-      await prisma.User.delete({ where: { id: user2.id } });
+      await prisma.user.delete({ where: { id: user2.id } });
     });
   });
 
@@ -348,18 +348,18 @@ describe("Workout Template routes", () => {
 
     beforeEach(async () => {
       // Create muscle groups
-      const mg = await prisma.MuscleGroup.create({
+      const mg = await prisma.muscleGroup.create({
         data: { userId: user.id, name: "Chest" },
       });
       // Create exercises
-      ex1 = await prisma.Exercise.create({
+      ex1 = await prisma.exercise.create({
         data: {
           userId: user.id,
           name: "Bench Press",
           muscleGroups: { connect: [{ id: mg.id }] },
         },
       });
-      ex2 = await prisma.Exercise.create({
+      ex2 = await prisma.exercise.create({
         data: {
           userId: user.id,
           name: "Push Up",
@@ -367,7 +367,7 @@ describe("Workout Template routes", () => {
         },
       });
       // Create workout template with one exercise
-      template = await prisma.WorkoutTemplate.create({
+      template = await prisma.workoutTemplate.create({
         data: {
           userId: user.id,
           name: "Upper Body",
@@ -410,7 +410,7 @@ describe("Workout Template routes", () => {
 
     it("returns 400 if the payload is invalid", async () => {
       // First create a template to update
-      const template = await prisma.WorkoutTemplate.create({
+      const template = await prisma.workoutTemplate.create({
         data: { userId: user.id, name: "Old Name" },
       });
 
@@ -503,13 +503,13 @@ describe("Workout Template routes", () => {
 
     it("successfully deletes a workout template and returns it", async () => {
       // Create a workout template for the user
-      const ex = await prisma.Exercise.create({
+      const ex = await prisma.exercise.create({
         data: {
           userId: user.id,
           name: "Bench Press",
         },
       });
-      const template = await prisma.WorkoutTemplate.create({
+      const template = await prisma.workoutTemplate.create({
         data: {
           userId: user.id,
           name: "To Be Deleted",
@@ -530,7 +530,7 @@ describe("Workout Template routes", () => {
       expect(res.body.workoutTemplate.name).toBe("To Be Deleted");
 
       // Verify it was actually deleted
-      const check = await prisma.WorkoutTemplate.findUnique({
+      const check = await prisma.workoutTemplate.findUnique({
         where: { id: template.id },
       });
       expect(check).toBeNull();
@@ -539,7 +539,7 @@ describe("Workout Template routes", () => {
     it("does not allow a user to delete another user's template", async () => {
       // Create a second user
       const passwordHash = await bcrypt.hash("password123", 10);
-      const otherUser = await prisma.User.create({
+      const otherUser = await prisma.user.create({
         data: {
           firstName: "Other",
           lastName: "User",
@@ -550,7 +550,7 @@ describe("Workout Template routes", () => {
           gender: "female",
         },
       });
-      const template = await prisma.WorkoutTemplate.create({
+      const template = await prisma.workoutTemplate.create({
         data: { userId: otherUser.id, name: "Other's Template" },
       });
 
@@ -562,7 +562,7 @@ describe("Workout Template routes", () => {
       expect(res.body.error).toBe("Workout Template not found");
 
       // Clean up
-      await prisma.User.delete({ where: { id: otherUser.id } });
+      await prisma.user.delete({ where: { id: otherUser.id } });
     });
   });
 });

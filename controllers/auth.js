@@ -6,7 +6,7 @@ exports.login = async (req, res) => {
   const { email, password } = req.validated.body;
 
   // Get user by email
-  const user = await prisma.User.findUnique({ where: { email } });
+  const user = await prisma.user.findUnique({ where: { email } });
   if (!user) return res.status(401).json({ error: "Invalid credentials" });
 
   // Compare password
@@ -31,7 +31,7 @@ exports.login = async (req, res) => {
   const saltRounds = 10;
   const tokenHash = await bcrypt.hash(refreshToken, saltRounds);
 
-  await prisma.RefreshToken.create({
+  await prisma.refreshToken.create({
     data: {
       userId: user.id,
       tokenHash: tokenHash,
@@ -53,7 +53,7 @@ exports.logout = async (req, res) => {
   }
 
   // Get all stored refresh tokens for this user
-  const storedTokens = await prisma.RefreshToken.findMany({
+  const storedTokens = await prisma.refreshToken.findMany({
     where: { userId: payload.userId },
   });
 
@@ -68,7 +68,7 @@ exports.logout = async (req, res) => {
 
   if (!matchedToken) return res.status(401).json({ error: "Token not found" });
 
-  await prisma.RefreshToken.delete({ where: { id: matchedToken.id } });
+  await prisma.refreshToken.delete({ where: { id: matchedToken.id } });
 
   res.json({ message: "Logged out successfully" });
 };
@@ -84,7 +84,7 @@ exports.refreshToken = async (req, res) => {
   }
 
   // Get all stored refresh tokens for this user
-  const storedTokens = await prisma.RefreshToken.findMany({
+  const storedTokens = await prisma.refreshToken.findMany({
     where: { userId: payload.userId },
   });
 

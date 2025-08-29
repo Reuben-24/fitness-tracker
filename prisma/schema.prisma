@@ -7,69 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model ExerciseMuscleGroup {
-  exerciseId    Int @map("exercise_id")
-  muscleGroupId Int @map("muscle_group_id")
-
-  exercise    Exercise    @relation(fields: [exerciseId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  muscleGroup MuscleGroup @relation(fields: [muscleGroupId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@id([exerciseId, muscleGroupId])
-  @@index([exerciseId], map: "idx_exercise_muscle_groups_exercise_id")
-  @@index([muscleGroupId], map: "idx_exercise_muscle_groups_muscle_group_id")
-  @@map("exercise_muscle_groups")
-}
-
-model ExerciseSet {
-  id                Int      @id @default(autoincrement())
-  sessionExerciseId Int      @map("session_exercise_id")
-  setNumber         Int      @map("set_number")
-  reps              Int?
-  weight            Decimal? @db.Decimal(5, 2)
-  completed         Boolean  @default(true)
-
-  sessionExercise SessionExercise @relation(fields: [sessionExerciseId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@index([sessionExerciseId], map: "idx_exercise_sets_session_exercise_id")
-  @@map("exercise_sets")
-}
-
-model Exercise {
-  id          Int      @id @default(autoincrement())
-  userId      Int      @map("user_id")
-  name        String   @db.VarChar(100)
-  description String?
-  equipment   String?  @db.VarChar(100)
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  muscleGroups         MuscleGroup[]
-  exerciseMuscleGroups ExerciseMuscleGroup[]
-  sessions             SessionExercise[]
-  templateExercises    TemplateExercise[]
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@unique([userId, name])
-  @@map("exercises")
-}
-
-model MuscleGroup {
-  id          Int      @id @default(autoincrement())
-  userId      Int      @map("user_id")
-  name        String   @db.VarChar(100)
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  exercises Exercise[]
-  exerciseMuscleGroups ExerciseMuscleGroup[]
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@unique([userId, name])
-  @@map("muscle_groups")
-}
-
 model RefreshToken {
   id        Int      @id @default(autoincrement())
   userId    Int      @map("user_id")
@@ -81,39 +18,6 @@ model RefreshToken {
 
   @@index([userId], map: "idx_refresh_tokens_user_id")
   @@map("refresh_tokens")
-}
-
-model SessionExercise {
-  id               Int @id @default(autoincrement())
-  workoutSessionId Int @map("workout_session_id")
-  exerciseId       Int @map("exercise_id")
-  position         Int
-
-  exercise       Exercise       @relation(fields: [exerciseId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  workoutSession WorkoutSession @relation(fields: [workoutSessionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  exerciseSets   ExerciseSet[]
-
-  @@index([exerciseId], map: "idx_session_exercises_exercise_id")
-  @@index([workoutSessionId], map: "idx_session_exercises_session_id")
-  @@map("session_exercises")
-}
-
-model TemplateExercise {
-  id                Int       @id @default(autoincrement())
-  workoutTemplateId Int       @map("workout_template_id")
-  exerciseId        Int       @map("exercise_id")
-  sets              Int
-  reps              Int
-  weight            Decimal?  @db.Decimal(5, 2)
-  position          Int
-
-  exercise        Exercise        @relation(fields: [exerciseId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  workoutTemplate WorkoutTemplate @relation(fields: [workoutTemplateId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@unique([workoutTemplateId, position])
-  @@index([exerciseId], map: "idx_template_exercises_exercise_id")
-  @@index([workoutTemplateId], map: "idx_template_exercises_template_id")
-  @@map("template_exercises")
 }
 
 model User {
@@ -137,20 +41,60 @@ model User {
   @@map("users")
 }
 
-model WorkoutSession {
-  id                 Int        @id @default(autoincrement())
-  userId             Int        @map("user_id")
-  workoutTemplateId  Int?       @map("workout_template_id")
-  startedAt          DateTime?  @map("started_at") @db.Timestamp(6)
-  finishedAt         DateTime?  @map("finished_at") @db.Timestamp(6)
+enum UserGender {
+  male
+  female
+  nonBinary        @map("non-binary")
+  preferNotToSay   @map("prefer not to say")
+}
 
-  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  workoutTemplate  WorkoutTemplate? @relation(fields: [workoutTemplateId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  sessionExercises SessionExercise[]
+model Exercise {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @map("user_id")
+  name        String   @db.VarChar(100)
+  description String?
+  equipment   String?  @db.VarChar(100)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
-  @@index([startedAt], map: "idx_workout_sessions_started_at")
-  @@index([userId], map: "idx_workout_sessions_user_id")
-  @@map("workout_sessions")
+  muscleGroups         MuscleGroup[]
+  exerciseMuscleGroups ExerciseMuscleGroup[]
+  sessions             SessionExercise[]
+  templateExercises    TemplateExercise[]
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([userId, name])
+  @@map("exercises")
+}
+
+model ExerciseMuscleGroup {
+  exerciseId    Int @map("exercise_id")
+  muscleGroupId Int @map("muscle_group_id")
+
+  exercise    Exercise    @relation(fields: [exerciseId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  muscleGroup MuscleGroup @relation(fields: [muscleGroupId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([exerciseId, muscleGroupId])
+  @@index([exerciseId], map: "idx_exercise_muscle_groups_exercise_id")
+  @@index([muscleGroupId], map: "idx_exercise_muscle_groups_muscle_group_id")
+  @@map("exercise_muscle_groups")
+}
+
+model MuscleGroup {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @map("user_id")
+  name        String   @db.VarChar(100)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  exercises Exercise[]
+  exerciseMuscleGroups ExerciseMuscleGroup[]
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([userId, name])
+  @@map("muscle_groups")
 }
 
 model WorkoutTemplate {
@@ -170,9 +114,65 @@ model WorkoutTemplate {
   @@map("workout_templates")
 }
 
-enum UserGender {
-  male
-  female
-  nonBinary        @map("non-binary")
-  preferNotToSay   @map("prefer not to say")
+model TemplateExercise {
+  id                Int       @id @default(autoincrement())
+  workoutTemplateId Int       @map("workout_template_id")
+  exerciseId        Int       @map("exercise_id")
+  sets              Int
+  reps              Int
+  weight            Decimal?  @db.Decimal(5, 2)
+  position          Int
+
+  exercise        Exercise        @relation(fields: [exerciseId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  workoutTemplate WorkoutTemplate @relation(fields: [workoutTemplateId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([workoutTemplateId, position])
+  @@index([exerciseId], map: "idx_template_exercises_exercise_id")
+  @@index([workoutTemplateId], map: "idx_template_exercises_template_id")
+  @@map("template_exercises")
+}
+
+model WorkoutSession {
+  id                 Int        @id @default(autoincrement())
+  userId             Int        @map("user_id")
+  workoutTemplateId  Int?       @map("workout_template_id")
+  startedAt          DateTime?  @map("started_at") @db.Timestamp(6)
+  finishedAt         DateTime   @map("finished_at") @db.Timestamp(6)
+
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  workoutTemplate  WorkoutTemplate? @relation(fields: [workoutTemplateId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  sessionExercises SessionExercise[]
+
+  @@index([startedAt], map: "idx_workout_sessions_started_at")
+  @@index([userId], map: "idx_workout_sessions_user_id")
+  @@map("workout_sessions")
+}
+
+model SessionExercise {
+  id               Int @id @default(autoincrement())
+  workoutSessionId Int @map("workout_session_id")
+  exerciseId       Int @map("exercise_id")
+  position         Int
+
+  exercise       Exercise       @relation(fields: [exerciseId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  workoutSession WorkoutSession @relation(fields: [workoutSessionId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  exerciseSets   ExerciseSet[]
+
+  @@index([exerciseId], map: "idx_session_exercises_exercise_id")
+  @@index([workoutSessionId], map: "idx_session_exercises_session_id")
+  @@map("session_exercises")
+}
+
+model ExerciseSet {
+  id                Int      @id @default(autoincrement())
+  sessionExerciseId Int      @map("session_exercise_id")
+  setNumber         Int      @map("set_number")
+  reps              Int?
+  weight            Decimal? @db.Decimal(5, 2)
+  completed         Boolean  @default(true)
+
+  sessionExercise SessionExercise @relation(fields: [sessionExerciseId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([sessionExerciseId], map: "idx_exercise_sets_session_exercise_id")
+  @@map("exercise_sets")
 }

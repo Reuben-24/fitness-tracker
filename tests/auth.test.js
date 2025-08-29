@@ -11,7 +11,7 @@ describe("Auth routes", () => {
     beforeAll(async () => {
       // Create a test user
       const passwordHash = await bcrypt.hash("password123", 10);
-      testUser = await prisma.User.create({
+      testUser = await prisma.user.create({
         data: {
           firstName: "Test",
           lastName: "User",
@@ -26,8 +26,8 @@ describe("Auth routes", () => {
 
     afterAll(async () => {
       // Clean up user and tokens
-      await prisma.RefreshToken.deleteMany({ where: { userId: testUser.id } });
-      await prisma.User.deleteMany({ where: { id: testUser.id } });
+      await prisma.refreshToken.deleteMany({ where: { userId: testUser.id } });
+      await prisma.user.deleteMany({ where: { id: testUser.id } });
       await prisma.$disconnect();
     });
 
@@ -84,7 +84,7 @@ describe("Auth routes", () => {
     beforeAll(async () => {
       // Create a test user
       const passwordHash = await bcrypt.hash("password123", 10);
-      testUser = await prisma.User.create({
+      testUser = await prisma.user.create({
         data: {
           firstName: "Logout",
           lastName: "Tester",
@@ -106,8 +106,8 @@ describe("Auth routes", () => {
 
     afterAll(async () => {
       // Clean up user and tokens
-      await prisma.RefreshToken.deleteMany({ where: { userId: testUser.id } });
-      await prisma.User.deleteMany({ where: { id: testUser.id } });
+      await prisma.refreshToken.deleteMany({ where: { userId: testUser.id } });
+      await prisma.user.deleteMany({ where: { id: testUser.id } });
       await prisma.$disconnect();
     });
 
@@ -144,7 +144,7 @@ describe("Auth routes", () => {
     beforeAll(async () => {
       // Create a test user
       const passwordHash = await bcrypt.hash("password123", 10);
-      testUser = await prisma.User.create({
+      testUser = await prisma.user.create({
         data: {
           firstName: "Refresh",
           lastName: "Tester",
@@ -166,8 +166,8 @@ describe("Auth routes", () => {
 
     afterAll(async () => {
       // Clean up user and tokens
-      await prisma.RefreshToken.deleteMany({ where: { userId: testUser.id } });
-      await prisma.User.deleteMany({ where: { id: testUser.id } });
+      await prisma.refreshToken.deleteMany({ where: { userId: testUser.id } });
+      await prisma.user.deleteMany({ where: { id: testUser.id } });
       await prisma.$disconnect();
     });
 

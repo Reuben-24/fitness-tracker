@@ -22,26 +22,31 @@ exports.create = [
 
   body("templateExercises.*.exerciseId")
     .isInt({ gt: 0 })
-    .withMessage("Exercise ID must be a positive integer"),
+    .withMessage("Exercise ID must be a positive integer")
+    .toInt(),
 
   body("templateExercises.*.sets")
     .isInt({ gt: 0 })
-    .withMessage("Sets must be a positive integer"),
+    .withMessage("Sets must be a positive integer")
+    .toInt(),
 
   body("templateExercises.*.reps")
     .isInt({ gt: 0 })
-    .withMessage("Reps must be a positive integer"),
+    .withMessage("Reps must be a positive integer")
+    .toInt(),
 
   body("templateExercises.*.weight")
     .optional({ nullable: true })
     .isDecimal({ decimal_digits: "0,2" })
     .withMessage(
       "Weight must be a valid decimal number with up to 2 decimal places",
-    ),
+    )
+    .toFloat(),
 
   body("templateExercises.*.position")
     .isInt({ gt: 0 })
-    .withMessage("Position must be a positive integer"),
+    .withMessage("Position must be a positive integer")
+    .toInt(),
 ];
 
 exports.update = [
@@ -69,27 +74,32 @@ exports.update = [
   body("templateExercises.*.exerciseId")
     .optional()
     .isInt({ gt: 0 })
-    .withMessage("Exercise ID must be a positive integer if provided"),
+    .withMessage("Exercise ID must be a positive integer if provided")
+    .toInt(),
 
   body("templateExercises.*.sets")
     .optional()
     .isInt({ gt: 0 })
-    .withMessage("Sets must be a positive integer if provided"),
+    .withMessage("Sets must be a positive integer if provided")
+    .toInt(),
 
   body("templateExercises.*.reps")
     .optional()
     .isInt({ gt: 0 })
-    .withMessage("Reps must be a positive integer if provided"),
+    .withMessage("Reps must be a positive integer if provided")
+    .toInt(),
 
   body("templateExercises.*.weight")
     .optional({ nullable: true })
     .isDecimal({ decimal_digits: "0,2" })
     .withMessage(
       "Weight must be a valid decimal number with up to 2 decimal places if provided",
-    ),
+    )
+    .toFloat(),
 
   body("templateExercises.*.position")
     .optional()
     .isInt({ gt: 0 })
-    .withMessage("Position must be a positive integer if provided"),
+    .withMessage("Position must be a positive integer if provided")
+    .toInt(),
 ];

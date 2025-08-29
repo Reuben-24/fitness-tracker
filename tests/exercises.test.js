@@ -14,7 +14,7 @@ describe("Exercise routes", () => {
     // Create a test user
     const password = "password123";
     const passwordHash = await bcrypt.hash(password, 10);
-    user = await prisma.User.create({
+    user = await prisma.user.create({
       data: {
         firstName: "Test",
         lastName: "User",
@@ -32,11 +32,11 @@ describe("Exercise routes", () => {
 
   // After all tests, clean up
   afterAll(async () => {
-    await prisma.User.deleteMany({ where: { id: user?.id } });
+    await prisma.user.deleteMany({ where: { id: user?.id } });
     await prisma.exerciseMuscleGroup.deleteMany({
       where: { exerciseId: exercise?.id },
     });
-    await prisma.Exercise.deleteMany({ where: { userId: user?.id } });
+    await prisma.exercise.deleteMany({ where: { userId: user?.id } });
     await prisma.$disconnect();
   });
 
@@ -59,15 +59,15 @@ describe("Exercise routes", () => {
 
     it("returns exercises for the authenticated user with muscle groups", async () => {
       // Create some muscle groups
-      const muscleGroup1 = await prisma.MuscleGroup.create({
+      const muscleGroup1 = await prisma.muscleGroup.create({
         data: { userId: user.id, name: "Biceps" },
       });
-      const muscleGroup2 = await prisma.MuscleGroup.create({
+      const muscleGroup2 = await prisma.muscleGroup.create({
         data: { userId: user.id, name: "Triceps" },
       });
 
       // Create exercises linked to muscle groups
-      exercise = await prisma.Exercise.create({
+      exercise = await prisma.exercise.create({
         data: {
           userId: user.id,
           name: "Bicep Curl",
@@ -118,14 +118,14 @@ describe("Exercise routes", () => {
 
     it("should return 200 and the exercise with muscle groups", async () => {
       // Create exercise and muscle groups
-      const mg1 = await prisma.MuscleGroup.create({
+      const mg1 = await prisma.muscleGroup.create({
         data: { userId: user.id, name: `Biceps-${Date.now()}` },
       });
-      const mg2 = await prisma.MuscleGroup.create({
+      const mg2 = await prisma.muscleGroup.create({
         data: { userId: user.id, name: `Triceps-${Date.now()}` },
       });
 
-      exercise = await prisma.Exercise.create({
+      exercise = await prisma.exercise.create({
         data: {
           userId: user.id,
           name: "Hammer Curl",
@@ -191,10 +191,10 @@ describe("Exercise routes", () => {
 
     it("should create an exercise with muscle groups", async () => {
       // Create muscle groups first
-      const chest = await prisma.MuscleGroup.create({
+      const chest = await prisma.muscleGroup.create({
         data: { userId: user.id, name: `Chest-${Date.now()}` },
       });
-      const triceps = await prisma.MuscleGroup.create({
+      const triceps = await prisma.muscleGroup.create({
         data: { userId: user.id, name: `Triceps-${Date.now()}` },
       });
 
@@ -241,7 +241,7 @@ describe("Exercise routes", () => {
 
     it("should update an exercise’s basic fields (without muscle groups)", async () => {
       // Create exercise
-      const exerciseToUpdate = await prisma.Exercise.create({
+      const exerciseToUpdate = await prisma.exercise.create({
         data: {
           userId: user.id,
           name: `Push Up-1`,
@@ -266,17 +266,17 @@ describe("Exercise routes", () => {
 
     it("should update exercise and set new muscle groups", async () => {
       // Create exercise and initial muscle group
-      const mg1 = await prisma.MuscleGroup.create({
+      const mg1 = await prisma.muscleGroup.create({
         data: { userId: user.id, name: `Chest-${Date.now()}` },
       });
-      const mg2 = await prisma.MuscleGroup.create({
+      const mg2 = await prisma.muscleGroup.create({
         data: { userId: user.id, name: `Shoulders-${Date.now()}` },
       });
-      const mg3 = await prisma.MuscleGroup.create({
+      const mg3 = await prisma.muscleGroup.create({
         data: { userId: user.id, name: `Back-${Date.now()}` },
       });
 
-      const exerciseToUpdate = await prisma.Exercise.create({
+      const exerciseToUpdate = await prisma.exercise.create({
         data: {
           userId: user.id,
           name: `Bench Press 1`,
@@ -334,7 +334,7 @@ describe("Exercise routes", () => {
 
     it("should delete an exercise successfully", async () => {
       // Create an exercise to delete
-      const exerciseToDelete = await prisma.Exercise.create({
+      const exerciseToDelete = await prisma.exercise.create({
         data: {
           userId: user.id,
           name: `Delete Me-${Date.now()}`,
@@ -354,7 +354,7 @@ describe("Exercise routes", () => {
       expect(res.body.exercise.id).toBe(exerciseToDelete.id);
 
       // Ensure it is actually deleted
-      const check = await prisma.Exercise.findUnique({
+      const check = await prisma.exercise.findUnique({
         where: { id: exerciseToDelete.id },
       });
       expect(check).toBeNull();

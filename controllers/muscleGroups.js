@@ -2,7 +2,7 @@ const prisma = require("../prisma/prisma");
 
 exports.readAllForUser = async (req, res) => {
   const userId = req.user.id;
-  const muscleGroups = await prisma.MuscleGroup.findMany({
+  const muscleGroups = await prisma.muscleGroup.findMany({
     where: { userId },
     include: { exercises: true },
   });
@@ -15,7 +15,7 @@ exports.readAllForUser = async (req, res) => {
 exports.readForUserById = async (req, res) => {
   const userId = req.user.id;
   const muscleGroupId = req.validated.params.muscleGroupId;
-  const muscleGroup = await prisma.MuscleGroup.findFirst({
+  const muscleGroup = await prisma.muscleGroup.findFirst({
     where: { id: muscleGroupId, userId },
     include: { exercises: true },
   });
@@ -30,7 +30,7 @@ exports.readForUserById = async (req, res) => {
 exports.create = async (req, res) => {
   const userId = req.user.id;
   const { name } = req.validated.body;
-  const muscleGroup = await prisma.MuscleGroup.create({
+  const muscleGroup = await prisma.muscleGroup.create({
     data: { userId, name },
     include: { exercises: true },
   });
@@ -44,12 +44,12 @@ exports.update = async (req, res) => {
   const userId = req.user.id;
   const muscleGroupId = req.validated.params.muscleGroupId;
   const fieldsToUpdate = { ...req.validated.body };
-  const existingMuscleGroup = await prisma.MuscleGroup.findFirst({
+  const existingMuscleGroup = await prisma.muscleGroup.findFirst({
     where: { id: muscleGroupId, userId },
   });
   if (!existingMuscleGroup)
     return res.status(404).json({ error: "Muscle Group not found" });
-  const updatedMuscleGroup = await prisma.MuscleGroup.update({
+  const updatedMuscleGroup = await prisma.muscleGroup.update({
     where: { id: muscleGroupId },
     data: { ...fieldsToUpdate },
     include: { exercises: true },
@@ -63,12 +63,12 @@ exports.update = async (req, res) => {
 exports.delete = async (req, res) => {
   const userId = req.user.id;
   const { muscleGroupId } = req.validated.params;
-  const muscleGroup = await prisma.MuscleGroup.findFirst({
+  const muscleGroup = await prisma.muscleGroup.findFirst({
     where: { id: muscleGroupId, userId },
   });
   if (!muscleGroup)
     return res.status(404).json({ error: "Muscle Group not found" });
-  await prisma.MuscleGroup.delete({ where: { id: muscleGroup.id } });
+  await prisma.muscleGroup.delete({ where: { id: muscleGroup.id } });
   res.status(200).json({
     message: "Muscle Group successfully deleted",
     muscleGroup,

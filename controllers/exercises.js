@@ -2,7 +2,7 @@ const prisma = require("../prisma/prisma");
 
 exports.readAllForUser = async (req, res) => {
   const userId = req.user.id;
-  const exercises = await prisma.Exercise.findMany({
+  const exercises = await prisma.exercise.findMany({
     where: { userId },
     include: { muscleGroups: true },
   });
@@ -15,7 +15,7 @@ exports.readAllForUser = async (req, res) => {
 exports.readForUserById = async (req, res) => {
   const userId = req.user.id;
   const exerciseId = req.validated.params.exerciseId;
-  const exercise = await prisma.Exercise.findFirst({
+  const exercise = await prisma.exercise.findFirst({
     where: { id: exerciseId, userId },
     include: { muscleGroups: true },
   });
@@ -28,7 +28,7 @@ exports.readForUserById = async (req, res) => {
 exports.create = async (req, res) => {
   const userId = req.user.id;
   const { muscleGroupIds, ...fieldsToCreate } = req.validated.body;
-  const exercise = await prisma.Exercise.create({
+  const exercise = await prisma.exercise.create({
     data: {
       userId,
       ...fieldsToCreate,
@@ -56,12 +56,12 @@ exports.update = async (req, res) => {
   const userId = req.user.id;
   const exerciseId = req.validated.params.exerciseId;
   const { muscleGroupIds, ...fieldsToUpdate } = req.validated.body;
-  const existingExercise = await prisma.Exercise.findFirst({
+  const existingExercise = await prisma.exercise.findFirst({
     where: { id: exerciseId, userId },
   });
   if (!existingExercise)
     return res.status(404).json({ error: "Exercise not found" });
-  const updatedExercise = await prisma.Exercise.update({
+  const updatedExercise = await prisma.exercise.update({
     where: { id: exerciseId },
     data: {
       ...fieldsToUpdate,
@@ -82,11 +82,11 @@ exports.update = async (req, res) => {
 exports.delete = async (req, res) => {
   const userId = req.user.id;
   const { exerciseId } = req.validated.params;
-  const exercise = await prisma.Exercise.findFirst({
+  const exercise = await prisma.exercise.findFirst({
     where: { id: exerciseId, userId },
   });
   if (!exercise) return res.status(404).json({ error: "Exercise not found" });
-  await prisma.Exercise.delete({ where: { id: exercise.id } });
+  await prisma.exercise.delete({ where: { id: exercise.id } });
   res.status(200).json({
     message: "Exercise successfully deleted",
     exercise,

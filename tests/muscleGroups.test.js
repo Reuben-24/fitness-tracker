@@ -12,7 +12,7 @@ describe("Exercise routes", () => {
     // Create a test user with auth
     const password = "password123";
     const passwordHash = await bcrypt.hash(password, 10);
-    user = await prisma.User.create({
+    user = await prisma.user.create({
       data: {
         firstName: "Test",
         lastName: "User",
@@ -28,9 +28,9 @@ describe("Exercise routes", () => {
 
   afterAll(async () => {
     // Clean up test user and associated data
-    await prisma.User.deleteMany({ where: { id: user?.id } });
-    await prisma.Exercise.deleteMany({ where: { userId: user.id } });
-    await prisma.MuscleGroup.deleteMany({ where: { userId: user.id } });
+    await prisma.user.deleteMany({ where: { id: user?.id } });
+    await prisma.exercise.deleteMany({ where: { userId: user.id } });
+    await prisma.muscleGroup.deleteMany({ where: { userId: user.id } });
     await prisma.$disconnect();
   });
 
@@ -56,15 +56,15 @@ describe("Exercise routes", () => {
 
     it("returns all muscle groups for the authenticated user with exercises", async () => {
       // Create some muscle groups for this user
-      muscleGroup1 = await prisma.MuscleGroup.create({
+      muscleGroup1 = await prisma.muscleGroup.create({
         data: { userId: user.id, name: "Biceps" },
       });
-      muscleGroup2 = await prisma.MuscleGroup.create({
+      muscleGroup2 = await prisma.muscleGroup.create({
         data: { userId: user.id, name: "Triceps" },
       });
 
       // Create exercises linked to muscle groups
-      const exercise = await prisma.Exercise.create({
+      const exercise = await prisma.exercise.create({
         data: {
           userId: user.id,
           name: "Bicep Curl",
@@ -102,7 +102,7 @@ describe("Exercise routes", () => {
 
     beforeEach(async () => {
       // Create a muscle group for the test user
-      muscleGroup = await prisma.MuscleGroup.create({
+      muscleGroup = await prisma.muscleGroup.create({
         data: {
           userId: user.id,
           name: "Chest",
@@ -112,7 +112,7 @@ describe("Exercise routes", () => {
 
     afterEach(async () => {
       // Clean up any created muscle groups
-      await prisma.MuscleGroup.deleteMany({ where: { userId: user.id } });
+      await prisma.muscleGroup.deleteMany({ where: { userId: user.id } });
     });
 
     it("returns 401 if user not authenticated", async () => {
@@ -153,7 +153,7 @@ describe("Exercise routes", () => {
       // Create a second user for cross-user duplicate name test
       const password = "password456";
       const passwordHash = await bcrypt.hash(password, 10);
-      otherUser = await prisma.User.create({
+      otherUser = await prisma.user.create({
         data: {
           firstName: "Other",
           lastName: "User",
@@ -170,13 +170,13 @@ describe("Exercise routes", () => {
     });
 
     afterEach(async () => {
-      await prisma.MuscleGroup.deleteMany({
+      await prisma.muscleGroup.deleteMany({
         where: { OR: [{ userId: user.id }, { userId: otherUser.id }] },
       });
     });
 
     afterAll(async () => {
-      await prisma.User.deleteMany({ where: { id: otherUser.id } });
+      await prisma.user.deleteMany({ where: { id: otherUser.id } });
     });
 
     it("returns 401 if user not authenticated", async () => {
@@ -208,7 +208,7 @@ describe("Exercise routes", () => {
       expect(Array.isArray(res.body.muscleGroup.exercises)).toBe(true);
 
       // Verify persisted in DB
-      const inDb = await prisma.MuscleGroup.findUnique({
+      const inDb = await prisma.muscleGroup.findUnique({
         where: { id: res.body.muscleGroup.id },
       });
       expect(inDb).not.toBeNull();
@@ -217,7 +217,7 @@ describe("Exercise routes", () => {
 
     it("enforces unique muscle group name per user", async () => {
       // Create one muscle group first
-      await prisma.MuscleGroup.create({
+      await prisma.muscleGroup.create({
         data: { userId: user.id, name: "Chest" },
       });
 
@@ -254,13 +254,13 @@ describe("Exercise routes", () => {
 
     beforeEach(async () => {
       // Create a test muscle group for update scenarios
-      muscleGroup = await prisma.MuscleGroup.create({
+      muscleGroup = await prisma.muscleGroup.create({
         data: { userId: user.id, name: "Shoulders" },
       });
     });
 
     afterEach(async () => {
-      await prisma.MuscleGroup.deleteMany({ where: { userId: user.id } });
+      await prisma.muscleGroup.deleteMany({ where: { userId: user.id } });
     });
 
     it("returns 401 if user not authenticated", async () => {
@@ -312,7 +312,7 @@ describe("Exercise routes", () => {
       expect(Array.isArray(res.body.muscleGroup.exercises)).toBe(true);
 
       // Verify persisted in DB
-      const inDb = await prisma.MuscleGroup.findUnique({
+      const inDb = await prisma.muscleGroup.findUnique({
         where: { id: muscleGroup.id },
       });
       expect(inDb.name).toBe("Updated Shoulders");
@@ -321,7 +321,7 @@ describe("Exercise routes", () => {
     it("does not allow updating another user's muscle group", async () => {
       const password = "password456";
       const passwordHash = await bcrypt.hash(password, 10);
-      otherUser = await prisma.User.create({
+      otherUser = await prisma.user.create({
         data: {
           firstName: "Other",
           lastName: "User",
@@ -332,7 +332,7 @@ describe("Exercise routes", () => {
           gender: "female",
         },
       });
-      const otherUserMuscleGroup = await prisma.MuscleGroup.create({
+      const otherUserMuscleGroup = await prisma.muscleGroup.create({
         data: { userId: otherUser.id, name: "Other User Group" },
       });
 
@@ -345,14 +345,14 @@ describe("Exercise routes", () => {
       expect(res.body).toHaveProperty("error", "Muscle Group not found");
 
       // Ensure it wasn't updated
-      const inDb = await prisma.MuscleGroup.findUnique({
+      const inDb = await prisma.muscleGroup.findUnique({
         where: { id: otherUserMuscleGroup.id },
       });
       expect(inDb.name).toBe("Other User Group");
 
       // Cleanup
-      await prisma.User.delete({ where: { id: otherUser.id } });
-      await prisma.MuscleGroup.deleteMany({ where: { userId: otherUser.id } });
+      await prisma.user.delete({ where: { id: otherUser.id } });
+      await prisma.muscleGroup.deleteMany({ where: { userId: otherUser.id } });
     });
   });
 
@@ -361,13 +361,13 @@ describe("Exercise routes", () => {
 
     beforeEach(async () => {
       // Create a test muscle group for deletion
-      muscleGroup = await prisma.MuscleGroup.create({
+      muscleGroup = await prisma.muscleGroup.create({
         data: { userId: user.id, name: "Back" },
       });
     });
 
     afterEach(async () => {
-      await prisma.MuscleGroup.deleteMany({ where: { userId: user.id } });
+      await prisma.muscleGroup.deleteMany({ where: { userId: user.id } });
     });
 
     it("returns 401 if user not authenticated", async () => {
@@ -403,7 +403,7 @@ describe("Exercise routes", () => {
       expect(res.body.muscleGroup).toHaveProperty("name", "Back");
 
       // Ensure removed from DB
-      const inDb = await prisma.MuscleGroup.findUnique({
+      const inDb = await prisma.muscleGroup.findUnique({
         where: { id: muscleGroup.id },
       });
       expect(inDb).toBeNull();
@@ -412,7 +412,7 @@ describe("Exercise routes", () => {
     it("does not allow deleting another user's muscle group", async () => {
       const password = "password456";
       const passwordHash = await bcrypt.hash(password, 10);
-      otherUser = await prisma.User.create({
+      otherUser = await prisma.user.create({
         data: {
           firstName: "Other",
           lastName: "User",
@@ -423,7 +423,7 @@ describe("Exercise routes", () => {
           gender: "female",
         },
       });
-      const otherUserMuscleGroup = await prisma.MuscleGroup.create({
+      const otherUserMuscleGroup = await prisma.muscleGroup.create({
         data: { userId: otherUser.id, name: "Other User Group" },
       });
 
@@ -435,14 +435,14 @@ describe("Exercise routes", () => {
       expect(res.body).toHaveProperty("error", "Muscle Group not found");
 
       // Ensure still exists in DB
-      const inDb = await prisma.MuscleGroup.findUnique({
+      const inDb = await prisma.muscleGroup.findUnique({
         where: { id: otherUserMuscleGroup.id },
       });
       expect(inDb).not.toBeNull();
 
       // Cleanup
-      await prisma.User.delete({ where: { id: otherUser.id } });
-      await prisma.MuscleGroup.deleteMany({ where: { userId: otherUser.id } });
+      await prisma.user.delete({ where: { id: otherUser.id } });
+      await prisma.muscleGroup.deleteMany({ where: { userId: otherUser.id } });
     });
   });
 });
