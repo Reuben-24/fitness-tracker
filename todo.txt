@@ -1,2 +1,0 @@
-- Revisit on deployment: daily job to clean up expired refresh tokens
-- Implement ordering in all read queries (ie. orderBy: { name: "asc" })
