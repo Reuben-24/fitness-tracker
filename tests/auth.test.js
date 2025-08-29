@@ -3,6 +3,7 @@ const app = require("../app");
 const prisma = require("../prisma/prisma");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { createTestRefreshJWT } = require("./helpers/jwt");
 
 describe("Auth routes", () => {
   describe("POST /auth/login", () => {
@@ -43,7 +44,7 @@ describe("Auth routes", () => {
       // Verify the access token
       const decodedAccess = jwt.verify(res.body.token, process.env.JWT_SECRET);
       expect(decodedAccess).toHaveProperty("userId");
-      expect(decodedAccess.userId).toBe(testUser.id); // Optional: match the test user ID
+      expect(decodedAccess.userId).toBe(testUser.id);
 
       // Verify the refresh token
       const decodedRefresh = jwt.verify(
@@ -95,23 +96,17 @@ describe("Auth routes", () => {
           gender: "male",
         },
       });
-
-      // Login to get a refresh token
-      const res = await request(app)
-        .post("/auth/login")
-        .send({ email: "logout@test.com", password: "password123" });
-
-      refreshToken = res.body.refreshToken;
+      refreshToken = await createTestRefreshJWT(testUser.id);
     });
 
     afterAll(async () => {
-      // Clean up user and tokens
-      await prisma.refreshToken.deleteMany({ where: { userId: testUser.id } });
+      // Clean up
       await prisma.user.deleteMany({ where: { id: testUser.id } });
       await prisma.$disconnect();
     });
 
     it("should delete the refresh token and return success", async () => {
+      console.log(refreshToken);
       const res = await request(app)
         .post("/auth/logout")
         .send({ refreshToken });
@@ -132,8 +127,8 @@ describe("Auth routes", () => {
     it("should fail with missing refresh token", async () => {
       const res = await request(app).post("/auth/logout").send({});
 
-      expect(res.status).toBe(400); // Or match your validation error
-      expect(res.body).toHaveProperty("errors"); // Depends on your validation middleware
+      expect(res.status).toBe(400);
+      expect(res.body).toHaveProperty("errors");
     });
   });
 
@@ -155,18 +150,11 @@ describe("Auth routes", () => {
           gender: "male",
         },
       });
-
-      // Login to get a refresh token
-      const res = await request(app)
-        .post("/auth/login")
-        .send({ email: "refresh@test.com", password: "password123" });
-
-      refreshToken = res.body.refreshToken;
+      refreshToken = await createTestRefreshJWT(testUser.id);
     });
 
     afterAll(async () => {
-      // Clean up user and tokens
-      await prisma.refreshToken.deleteMany({ where: { userId: testUser.id } });
+      // Clean up
       await prisma.user.deleteMany({ where: { id: testUser.id } });
       await prisma.$disconnect();
     });
@@ -194,14 +182,14 @@ describe("Auth routes", () => {
         .send({ refreshToken: "invalidtoken" });
 
       expect(res.status).toBe(401);
-      expect(res.body).toEqual({ error: "Invalid refresh token" });
+      expect(res.body).toEqual({ error: "Invalid or expired token" });
     });
 
     it("should fail with missing refresh token", async () => {
       const res = await request(app).post("/auth/refresh-token").send({});
 
-      expect(res.status).toBe(400); // or match your validation middleware
-      expect(res.body).toHaveProperty("errors"); // depends on your validator
+      expect(res.status).toBe(400);
+      expect(res.body).toHaveProperty("errors");
     });
   });
 });

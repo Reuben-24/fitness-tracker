@@ -3,12 +3,18 @@ const { Prisma } = require("@prisma/client");
 function errorHandler(err, req, res, next) {
   console.error(err);
 
-  // Prisma unique constraint error (e.g., duplicate email)
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
     if (err.code === "P2002") {
       return res.status(409).json({
         error: `A record with that ${err.meta.target} already exists`,
       });
+    }
+    if (err.code === "P2025") {
+      return res
+        .status(404)
+        .json({
+          error: `A record with that ${err.meta.target} cannot be found`,
+        });
     }
   }
 

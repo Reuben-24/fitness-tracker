@@ -2,7 +2,7 @@ const request = require("supertest");
 const app = require("../app");
 const prisma = require("../prisma/prisma");
 const bcrypt = require("bcrypt");
-const generateTestJWT = require("./helpers/jwt");
+const { generateTestJWT } = require("./helpers/jwt");
 
 describe("Users routes", () => {
   describe("POST /users", () => {

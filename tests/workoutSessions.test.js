@@ -2,7 +2,7 @@ const request = require("supertest");
 const bcrypt = require("bcrypt");
 const app = require("../app");
 const prisma = require("../prisma/prisma");
-const generateTestJWT = require("./helpers/jwt");
+const { generateTestJWT } = require("./helpers/jwt");
 
 describe("Workout Template routes", () => {
   let user;
@@ -226,9 +226,7 @@ describe("Workout Template routes", () => {
 
   describe("POST /workout-sessions", () => {
     it("returns 401 if user is unauthenticated", async () => {
-      const res = await request(app)
-        .post("/workout-sessions")
-        .send({});
+      const res = await request(app).post("/workout-sessions").send({});
       expect(res.status).toBe(401);
       expect(res.body.error).toBeDefined();
     });
@@ -311,9 +309,7 @@ describe("Workout Template routes", () => {
 
   describe("PATCH /workout-sessions/:workoutSessionId", () => {
     it("returns 401 if user is unauthenticated", async () => {
-      const res = await request(app)
-        .patch("/workout-sessions/1")
-        .send({});
+      const res = await request(app).patch("/workout-sessions/1").send({});
       expect(res.status).toBe(401);
       expect(res.body.error).toBeDefined();
     });
@@ -381,7 +377,9 @@ describe("Workout Template routes", () => {
                 exerciseId: exercise.id,
                 position: 1,
                 exerciseSets: {
-                  create: [{ setNumber: 1, reps: 8, weight: 40, completed: true }],
+                  create: [
+                    { setNumber: 1, reps: 8, weight: 40, completed: true },
+                  ],
                 },
               },
             ],
@@ -423,7 +421,9 @@ describe("Workout Template routes", () => {
                 exerciseId: exercise.id,
                 position: 1,
                 exerciseSets: {
-                  create: [{ setNumber: 1, reps: 10, weight: 100, completed: true }],
+                  create: [
+                    { setNumber: 1, reps: 10, weight: 100, completed: true },
+                  ],
                 },
               },
             ],
@@ -481,7 +481,9 @@ describe("Workout Template routes", () => {
         .expect(200);
 
       expect(res.body.workoutSession.sessionExercises).toHaveLength(1);
-      expect(res.body.workoutSession.sessionExercises[0].exerciseSets).toHaveLength(1);
+      expect(
+        res.body.workoutSession.sessionExercises[0].exerciseSets,
+      ).toHaveLength(1);
 
       const dbSession = await prisma.workoutSession.findUnique({
         where: { id: session.id },
@@ -541,7 +543,9 @@ describe("Workout Template routes", () => {
         .expect(200);
 
       expect(res.body.workoutSession.sessionExercises).toHaveLength(1);
-      expect(res.body.workoutSession.sessionExercises[0].exerciseSets).toHaveLength(0);
+      expect(
+        res.body.workoutSession.sessionExercises[0].exerciseSets,
+      ).toHaveLength(0);
 
       const dbSession = await prisma.workoutSession.findUnique({
         where: { id: session.id },
