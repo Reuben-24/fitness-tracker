@@ -1,4 +1,2 @@
 - Revisit on deployment: daily job to clean up expired refresh tokens
-- Setup clean global strategy to handle errors and response codes (customer errors, etc.)
 - Implement ordering in all read queries (ie. orderBy: { name: "asc" })
-- Add in admin functionality which bypasses authorisation?

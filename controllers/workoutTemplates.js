@@ -14,6 +14,7 @@ exports.readAllForUser = async (req, res) => {
         orderBy: { position: "asc" },
       },
     },
+    orderBy: { name: "asc" },
   });
   res.status(200).json({
     message: "Workout Templates successfully retrieved",
