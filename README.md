@@ -27,7 +27,7 @@ A fitness tracker REST API, allowing users to log workouts, manage exercises, tr
 
 - **PostgreSQL:** Database Management System
 - **Prisma:** Database configuration and Schema management
-- **Prisma CLient:** Object-Relational Mapping
+- **Prisma Client:** Object-Relational Mapping
 
 ### Authentication/Authorization
 
