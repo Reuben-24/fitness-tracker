@@ -116,12 +116,16 @@ describe("Exercise routes", () => {
     });
 
     it("returns 401 if user not authenticated", async () => {
-      const res = await request(app).get(`/api/muscle-groups/${muscleGroup.id}`);
+      const res = await request(app).get(
+        `/api/muscle-groups/${muscleGroup.id}`,
+      );
       expect(res.status).toBe(401);
     });
 
     it("returns 400 if muscleGroupId is invalid", async () => {
-      const res = await request(app).get("/api/muscle-groups/cat").set(authHeader);
+      const res = await request(app)
+        .get("/api/muscle-groups/cat")
+        .set(authHeader);
       expect(res.status).toBe(400);
     });
 
@@ -371,7 +375,9 @@ describe("Exercise routes", () => {
     });
 
     it("returns 401 if user not authenticated", async () => {
-      const res = await request(app).delete(`/api/muscle-groups/${muscleGroup.id}`);
+      const res = await request(app).delete(
+        `/api/muscle-groups/${muscleGroup.id}`,
+      );
       expect(res.status).toBe(401);
     });
 
