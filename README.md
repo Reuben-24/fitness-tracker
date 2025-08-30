@@ -8,11 +8,11 @@ A fitness tracker REST API, allowing users to log workouts, manage exercises, tr
 
 ## Table of Contents
 
-- [Architecture](#-architecture)
-- [Project Structure](#-project-structure)
-- [API Routes](#-api-routes)
-- [Database Schema](#-database-schema)
-- [Environment Variables](#-environment-variables)
+- [Architecture](#architecture)
+- [Project Structure](#project-structure)
+- [API Routes](#api-routes)
+- [Database Schema](#database-schema)
+- [Environment Variables](#environment-variables)
 
 ---
 
