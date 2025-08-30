@@ -1,14 +1,15 @@
 # TODO
 
-## Deployment TODO
+## TODO on Deployment
 
 - Daily job to clean up expired refresh tokens
 - Add logging - Morgan? Winston?
+- Add CORS
 
 ## Ideas
 
 - Add swagger/openAPI docs
 - Add pagination to /exercises
-- Implement /me/exercises routes
+- Implement /me in routing
 - Add workout metrics endpoint
-- Create minimal React app front-ends (add CORS to only allow requests from front-end)
+- Create React front-end

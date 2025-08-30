@@ -3,6 +3,7 @@ const { Prisma } = require("@prisma/client");
 function errorHandler(err, req, res, next) {
   console.error(err);
 
+  // Prisma Errors
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
     if (err.code === "P2002") {
       return res.status(409).json({
@@ -15,13 +16,11 @@ function errorHandler(err, req, res, next) {
       });
     }
   }
-
-  // Prisma validation error
   if (err instanceof Prisma.PrismaClientValidationError) {
     return res.status(400).json({ error: "Invalid data sent to database" });
   }
 
-  // JWT / auth errors
+  // JWT errors
   if (err.name === "JsonWebTokenError" || err.name === "TokenExpiredError") {
     return res.status(401).json({ error: "Invalid or expired token" });
   }
