@@ -20,7 +20,7 @@ A fitness tracker REST API, allowing users to log workouts, manage exercises, tr
 
 ### Back-End Framework
 
-- Built with **JavaScript** and **Express.js**
+- Built with **Node.js** and **Express.js**
 - Uses Express's middleware and routing functionality for modular routes/middleware/error-handling
 
 ### Data Management
