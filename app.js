@@ -1,6 +1,5 @@
 const express = require("express");
 require("dotenv").config();
-const setupSwagger = require("./swagger");
 
 const errorHandler = require("./middleware/errorHandler");
 
@@ -28,9 +27,6 @@ apiRouter.use("/workout-templates", workoutTemplatesRouter);
 apiRouter.use("/workout-sessions", workoutSessionsRouter);
 
 app.use("/api", apiRouter);
-
-// Swagger Documentation
-setupSwagger(app);
 
 // Error Handler
 app.use(errorHandler);
