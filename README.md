@@ -22,11 +22,12 @@ A fitness tracker REST API, allowing users to log workouts, manage exercises, tr
 - **Prisma:** Database configuration and Schema management 
 - **Prisma CLient:** Object-Relational Mapping
 
-### Authentication
+### Authentication/Authorization
 - **JSON Web Tokens:** 
   - Short-lived access tokens for secure request authentication
   - Longer-lived, hashed reresh tokens temporarily stored in databse for secure persistent login
 - **Bcrypt:** Password and refresh-token hashing
+- Authorization system, permitting only allowed users to access and modify resources
 
 ### Validation
 - **Express-validator:**
@@ -51,35 +52,49 @@ A fitness tracker REST API, allowing users to log workouts, manage exercises, tr
 ```text
   .
   ├── .env
+  ├── .git/
   ├── .gitignore
-  ├── app.js
-  ├── controllers
-  │   ├── auth.js
-  │   ├── exercises.js
-  │   ├── muscleGroups.js
-  │   ├── users.js
-  │   ├── workoutSessions.js
-  │   └── workoutTemplates.js
-  ├── middleware
-  │   ├── asyncErrorHandler.js
-  │   ├── authenticate.js
-  │   ├── authorize.js
-  │   ├── errorHandler.js
-  │   └── validate.js
+  ├── generated
+  │   └── prisma/
+  ├── node_modules/
   ├── package-lock.json
   ├── package.json
   ├── prisma
+  │   ├── migrations/
   │   ├── prisma.js
   │   └── schema.prisma
   ├── README.md
-  ├── routes
-  │   ├── auth.js
-  │   ├── exercises.js
-  │   ├── muscleGroups.js
-  │   ├── users.js
-  │   ├── workoutSessions.js
-  │   └── workoutTemplates.js
-  ├── server.js
+  ├── src
+  │   ├── app.js
+  │   ├── controllers
+  │   │   ├── auth.js
+  │   │   ├── exercises.js
+  │   │   ├── muscleGroups.js
+  │   │   ├── users.js
+  │   │   ├── workoutSessions.js
+  │   │   └── workoutTemplates.js
+  │   ├── middleware
+  │   │   ├── asyncErrorHandler.js
+  │   │   ├── authenticate.js
+  │   │   ├── authorize.js
+  │   │   ├── errorHandler.js
+  │   │   └── validate.js
+  │   ├── routes
+  │   │   ├── auth.js
+  │   │   ├── exercises.js
+  │   │   ├── muscleGroups.js
+  │   │   ├── users.js
+  │   │   ├── workoutSessions.js
+  │   │   └── workoutTemplates.js
+  │   ├── server.js
+  │   └── validators
+  │       ├── auth.js
+  │       ├── common.js
+  │       ├── exercises.js
+  │       ├── muscleGroups.js
+  │       ├── users.js
+  │       ├── workoutSessions.js
+  │       └── workoutTemplates.js
   ├── tests
   │   ├── helpers
   │   │   └── jwt.js
@@ -90,15 +105,7 @@ A fitness tracker REST API, allowing users to log workouts, manage exercises, tr
   │       ├── users.test.js
   │       ├── workoutSessions.test.js
   │       └── workoutTemplates.test.js
-  ├── TODO.md
-  └── validators
-      ├── auth.js
-      ├── common.js
-      ├── exercises.js
-      ├── muscleGroups.js
-      ├── users.js
-      ├── workoutSessions.js
-      └── workoutTemplates.js
+  └── TODO.md
 ```
 
 ---
@@ -106,40 +113,47 @@ A fitness tracker REST API, allowing users to log workouts, manage exercises, tr
 ## API Routes
 
 ### Auth
-- `POST /auth/register` — Create a new user
-- `POST /auth/login` — Authenticate & receive tokens
-- `POST /auth/refresh` — Refresh access token
+- `POST /auth/login` — Authenticate credentials and generate tokens
 - `POST /auth/logout` — Invalidate refresh token
-- `GET /me` — Get current user profile
+- `POST /auth/refresh-token` — Refresh access token
+
+### Users
+- `POST /users` - Create a new user
+- `GET /users/:userId` - Get user details by ID
+- `PATCH /users/:userId` - Update user details by ID
+- `DELETE /users/:userId` - Remove a user
 
 ### Exercises
-- `GET /exercises` — List exercises (supports filtering/pagination)
-- `POST /exercises` — Create a new exercise
-- `GET /exercises/:id` — Get an exercise by ID
-- `PATCH /exercises/:id` — Update exercise
-- `DELETE /exercises/:id` — Delete exercise
+- `GET /exercises` — List all exercises for client user
+- `POST /exercises` — Create a new exercise for client user
+- `GET /exercises/:exerciseId` — Get an exercise's data by ID
+- `PATCH /exercises/:exerciseId` — Update exercise
+- `DELETE /exercises/:exerciseId` — Delete exercise
+
+### Muscle Groups
+- `GET /muscle-groups` — List all muscle groups for client user
+- `POST /muscle-groups` — Create a new muscle group for client user
+- `GET /muscle-groups/:muscleGroupId` — Get an muscle group's data by ID
+- `PATCH /muscle-groups/:muscleGroupId` — Update muscle group
+- `DELETE /muscle-groups/:muscleGroupId` — Delete muscle group
 
 ### Workout Templates
-- `GET /templates` — List templates
-- `POST /templates` — Create new template
-- `GET /templates/:id` — Get template details
-- `PATCH /templates/:id` — Update template
-- `DELETE /templates/:id` — Delete template
+- `GET /workout-templates` — List templates for client user
+- `POST /workout-templates` — Create new template for client user
+- `GET /workout-templates/:workoutTemplateId` — Get template details with nested exercises
+- `PATCH /workout-templates/:workoutTemplateId` — Update template
+- `DELETE /workout-templates/:workoutTemplateId` — Delete template
 
 ### Workout Sessions
-- `GET /sessions` — List workout sessions
-- `POST /sessions` — Create new session
-- `GET /sessions/:id` — Get session with nested exercises & sets
-- `PATCH /sessions/:id` — Update session
-- `DELETE /sessions/:id` — Delete session
-- `POST /sessions/:id/complete` — Mark session as finished
-
-### Misc
-- `GET /health` — Health check
-- (Optional) `GET /metrics` — Aggregated stats (volume, PRs, etc.)
+- `GET /workout-sessions` — List workout sessions for client user
+- `POST /workout-sessions` — Create new session for client user
+- `GET /workout-sessions/:workoutSessionId` — Get session with nested exercises & sets
+- `PATCH /workout-sessions/:workoutSessionId` — Update session
+- `DELETE /workout-sessions/:workoutSessionId` — Delete session
 
 ---
 
 ## Database Schema
+![Entity Relationship Diagram](entity-relationship-diagram.png)
 
 ---
