@@ -35,16 +35,16 @@ describe("Workout Template routes", () => {
     await prisma.$disconnect();
   });
 
-  describe("GET /workout-sessions", () => {
+  describe("GET /api/workout-sessions", () => {
     it("returns 401 if user is unauthenticated", async () => {
-      const res = await request(app).get("/workout-sessions");
+      const res = await request(app).get("/api/workout-sessions");
       expect(res.status).toBe(401);
       expect(res.body.error).toBeDefined();
     });
 
     it("returns an empty array if user has no workout sessions", async () => {
       const res = await request(app)
-        .get("/workout-sessions")
+        .get("/api/workout-sessions")
         .set(authHeader)
         .expect(200);
 
@@ -98,7 +98,7 @@ describe("Workout Template routes", () => {
       });
 
       const res = await request(app)
-        .get("/workout-sessions")
+        .get("/api/workout-sessions")
         .set(authHeader)
         .expect(200);
 
@@ -121,16 +121,16 @@ describe("Workout Template routes", () => {
     });
   });
 
-  describe("GET /workout-sessions/:workoutSessionId", () => {
+  describe("GET /api/workout-sessions/:workoutSessionId", () => {
     it("returns 401 if user is unauthenticated", async () => {
-      const res = await request(app).get("/workout-sessions/1");
+      const res = await request(app).get("/api/workout-sessions/1");
       expect(res.status).toBe(401);
       expect(res.body.error).toBeDefined();
     });
 
     it("returns 404 if workout session does not exist", async () => {
       const res = await request(app)
-        .get("/workout-sessions/999999")
+        .get("/api/workout-sessions/999999")
         .set(authHeader)
         .expect(404);
 
@@ -161,7 +161,7 @@ describe("Workout Template routes", () => {
       });
 
       const res = await request(app)
-        .get(`/workout-sessions/${otherSession.id}`)
+        .get(`/api/workout-sessions/${otherSession.id}`)
         .set(authHeader)
         .expect(404);
 
@@ -205,7 +205,7 @@ describe("Workout Template routes", () => {
       });
 
       const res = await request(app)
-        .get(`/workout-sessions/${session.id}`)
+        .get(`/api/workout-sessions/${session.id}`)
         .set(authHeader)
         .expect(200);
 
@@ -226,14 +226,14 @@ describe("Workout Template routes", () => {
 
   describe("POST /workout-sessions", () => {
     it("returns 401 if user is unauthenticated", async () => {
-      const res = await request(app).post("/workout-sessions").send({});
+      const res = await request(app).post("/api/workout-sessions").send({});
       expect(res.status).toBe(401);
       expect(res.body.error).toBeDefined();
     });
 
     it("returns 400 if body is invalid", async () => {
       const res = await request(app)
-        .post("/workout-sessions")
+        .post("/api/workout-sessions")
         .set(authHeader)
         .send({}) // missing required fields
         .expect(400);
@@ -268,7 +268,7 @@ describe("Workout Template routes", () => {
       };
 
       const res = await request(app)
-        .post("/workout-sessions")
+        .post("/api/workout-sessions")
         .set(authHeader)
         .send(payload)
         .expect(201);
@@ -307,16 +307,16 @@ describe("Workout Template routes", () => {
     });
   });
 
-  describe("PATCH /workout-sessions/:workoutSessionId", () => {
+  describe("PATCH /api/workout-sessions/:workoutSessionId", () => {
     it("returns 401 if user is unauthenticated", async () => {
-      const res = await request(app).patch("/workout-sessions/1").send({});
+      const res = await request(app).patch("/api/workout-sessions/1").send({});
       expect(res.status).toBe(401);
       expect(res.body.error).toBeDefined();
     });
 
     it("returns 404 if workout session does not exist", async () => {
       const res = await request(app)
-        .patch("/workout-sessions/999999")
+        .patch("/api/workout-sessions/999999")
         .set(authHeader)
         .send({ finishedAt: "2025-02-10T10:00:00Z" })
         .expect(404);
@@ -346,7 +346,7 @@ describe("Workout Template routes", () => {
       });
 
       const res = await request(app)
-        .patch(`/workout-sessions/${otherSession.id}`)
+        .patch(`/api/workout-sessions/${otherSession.id}`)
         .set(authHeader)
         .send({ finishedAt: "2025-02-10T10:00:00Z" })
         .expect(404);
@@ -388,7 +388,7 @@ describe("Workout Template routes", () => {
       });
 
       const res = await request(app)
-        .patch(`/workout-sessions/${session.id}`)
+        .patch(`/api/workout-sessions/${session.id}`)
         .set(authHeader)
         .send({ finishedAt: "2025-02-10T10:00:00Z" })
         .expect(200);
@@ -432,7 +432,7 @@ describe("Workout Template routes", () => {
       });
 
       const res = await request(app)
-        .patch(`/workout-sessions/${session.id}`)
+        .patch(`/api/workout-sessions/${session.id}`)
         .set(authHeader)
         .send({ sessionExercises: [] })
         .expect(200);
@@ -465,7 +465,7 @@ describe("Workout Template routes", () => {
       });
 
       const res = await request(app)
-        .patch(`/workout-sessions/${session.id}`)
+        .patch(`/api/workout-sessions/${session.id}`)
         .set(authHeader)
         .send({
           sessionExercises: [
@@ -529,7 +529,7 @@ describe("Workout Template routes", () => {
       });
 
       const res = await request(app)
-        .patch(`/workout-sessions/${session.id}`)
+        .patch(`/api/workout-sessions/${session.id}`)
         .set(authHeader)
         .send({
           sessionExercises: [
@@ -559,7 +559,7 @@ describe("Workout Template routes", () => {
     });
   });
 
-  describe("DELETE /workout-sessions/:workoutSessionId", () => {
+  describe("DELETE /api/workout-sessions/:workoutSessionId", () => {
     it("deletes a workout session successfully and returns it", async () => {
       const template = await prisma.workoutTemplate.create({
         data: { userId: user.id, name: "Delete Test Template" },
@@ -575,7 +575,7 @@ describe("Workout Template routes", () => {
       });
 
       const res = await request(app)
-        .delete(`/workout-sessions/${session.id}`)
+        .delete(`/api/workout-sessions/${session.id}`)
         .set(authHeader)
         .expect(200);
 
@@ -590,14 +590,14 @@ describe("Workout Template routes", () => {
     });
 
     it("returns 401 if user is unauthenticated", async () => {
-      const res = await request(app).delete("/workout-sessions/1");
+      const res = await request(app).delete("/api/workout-sessions/1");
       expect(res.status).toBe(401);
       expect(res.body.error).toBeDefined();
     });
 
     it("returns 400 if workoutTemplateId is invalid", async () => {
       const res = await request(app)
-        .delete("/workout-sessions/invalid-id")
+        .delete("/api/workout-sessions/invalid-id")
         .set(authHeader);
       expect(res.status).toBe(400);
       expect(res.body.errors).toBeDefined();
@@ -605,7 +605,7 @@ describe("Workout Template routes", () => {
 
     it("returns 404 if the workout session does not exist", async () => {
       const res = await request(app)
-        .delete(`/workout-sessions/999999`)
+        .delete(`/api/workout-sessions/999999`)
         .set(authHeader)
         .expect(404);
 
@@ -640,7 +640,7 @@ describe("Workout Template routes", () => {
       });
 
       const res = await request(app)
-        .delete(`/workout-sessions/${session.id}`)
+        .delete(`/api/workout-sessions/${session.id}`)
         .set(authHeader)
         .expect(404);
 

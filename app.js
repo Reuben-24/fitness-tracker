@@ -1,5 +1,6 @@
 const express = require("express");
 require("dotenv").config();
+const setupSwagger = require("./swagger");
 
 const errorHandler = require("./middleware/errorHandler");
 
@@ -12,16 +13,26 @@ const workoutSessionsRouter = require("./routes/workoutSessions");
 
 const app = express();
 
+// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/auth", authRouter);
-app.use("/users", usersRouter);
-app.use("/exercises", exercisesRouter);
-app.use("/muscle-groups", muscleGroupsRouter);
-app.use("/workout-templates", workoutTemplatesRouter);
-app.use("/workout-sessions", workoutSessionsRouter);
+// Routes
+const apiRouter = express.Router();
 
+apiRouter.use("/auth", authRouter);
+apiRouter.use("/users", usersRouter);
+apiRouter.use("/exercises", exercisesRouter);
+apiRouter.use("/muscle-groups", muscleGroupsRouter);
+apiRouter.use("/workout-templates", workoutTemplatesRouter);
+apiRouter.use("/workout-sessions", workoutSessionsRouter);
+
+app.use("/api", apiRouter);
+
+// Swagger Documentation
+setupSwagger(app);
+
+// Error Handler
 app.use(errorHandler);
 
 module.exports = app;

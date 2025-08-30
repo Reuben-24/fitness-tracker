@@ -10,11 +10,9 @@ function errorHandler(err, req, res, next) {
       });
     }
     if (err.code === "P2025") {
-      return res
-        .status(404)
-        .json({
-          error: `A record with that ${err.meta.target} cannot be found`,
-        });
+      return res.status(404).json({
+        error: `A record with that ${err.meta.target} cannot be found`,
+      });
     }
   }
 

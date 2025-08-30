@@ -40,16 +40,16 @@ describe("Exercise routes", () => {
     await prisma.$disconnect();
   });
 
-  describe("GET /exercises", () => {
+  describe("GET /api/exercises", () => {
     it("returns 401 if user is unauthenticated", async () => {
-      const res = await request(app).get("/exercises").expect(401);
+      const res = await request(app).get("/api/exercises").expect(401);
 
       expect(res.body.error).toBeDefined();
     });
 
     it("returns an empty array if user has no exercises", async () => {
       const res = await request(app)
-        .get("/exercises")
+        .get("/api/exercises")
         .set("Authorization", token)
         .expect(200);
 
@@ -79,7 +79,7 @@ describe("Exercise routes", () => {
       });
 
       const res = await request(app)
-        .get("/exercises")
+        .get("/api/exercises")
         .set("Authorization", token)
         .expect(200);
 
@@ -97,10 +97,10 @@ describe("Exercise routes", () => {
     });
   });
 
-  describe("GET /exercises/exerciseId", () => {
+  describe("GET /api/exercises/exerciseId", () => {
     it("should return 400 if exerciseId is not a number", async () => {
       const res = await request(app)
-        .get("/exercises/cat")
+        .get("/api/exercises/cat")
         .set("Authorization", token);
 
       expect(res.status).toBe(400);
@@ -109,7 +109,7 @@ describe("Exercise routes", () => {
 
     it("should return 404 if no exercise with that ID exists for the user", async () => {
       const res = await request(app)
-        .get("/exercises/999999")
+        .get("/api/exercises/999999")
         .set("Authorization", token);
 
       expect(res.status).toBe(404);
@@ -139,7 +139,7 @@ describe("Exercise routes", () => {
       });
 
       const res = await request(app)
-        .get(`/exercises/${exercise.id}`)
+        .get(`/api/exercises/${exercise.id}`)
         .set("Authorization", token);
 
       expect(res.status).toBe(200);
@@ -155,10 +155,10 @@ describe("Exercise routes", () => {
     });
   });
 
-  describe("POST /exercises", () => {
+  describe("POST /api/exercises", () => {
     it("should return 401 if user is unauthenticated", async () => {
       const res = await request(app)
-        .post("/exercises")
+        .post("/api/exercises")
         .send({ name: "Push Up" });
       expect(res.status).toBe(401);
       expect(res.body.error).toBeDefined();
@@ -166,7 +166,7 @@ describe("Exercise routes", () => {
 
     it("should return 400 if required fields are missing", async () => {
       const res = await request(app)
-        .post("/exercises")
+        .post("/api/exercises")
         .set("Authorization", token)
         .send({});
       expect(res.status).toBe(400);
@@ -175,7 +175,7 @@ describe("Exercise routes", () => {
 
     it("should create an exercise without muscle groups", async () => {
       const res = await request(app)
-        .post("/exercises")
+        .post("/api/exercises")
         .set("Authorization", token)
         .send({
           name: "Push Up",
@@ -199,7 +199,7 @@ describe("Exercise routes", () => {
       });
 
       const res = await request(app)
-        .post("/exercises")
+        .post("/api/exercises")
         .set("Authorization", token)
         .send({
           name: "Bench Press",
@@ -218,10 +218,10 @@ describe("Exercise routes", () => {
     });
   });
 
-  describe("PATCH /exercises/:exerciseId", () => {
+  describe("PATCH /api/exercises/:exerciseId", () => {
     it("should return 400 if exerciseId is not a number", async () => {
       const res = await request(app)
-        .patch("/exercises/cat")
+        .patch("/api/exercises/cat")
         .set("Authorization", token)
         .send({ name: "Updated Name" });
 
@@ -231,7 +231,7 @@ describe("Exercise routes", () => {
 
     it("should return 404 if exercise does not exist for the user", async () => {
       const res = await request(app)
-        .patch("/exercises/999999")
+        .patch("/api/exercises/999999")
         .set("Authorization", token)
         .send({ name: "Updated Name" });
 
@@ -250,7 +250,7 @@ describe("Exercise routes", () => {
       });
 
       const res = await request(app)
-        .patch(`/exercises/${exerciseToUpdate.id}`)
+        .patch(`/api/exercises/${exerciseToUpdate.id}`)
         .set("Authorization", token)
         .send({ name: "Updated Push Up", description: "Modified description" });
 
@@ -288,7 +288,7 @@ describe("Exercise routes", () => {
 
       // Update to new muscle groups (mg2, mg3 only)
       const res = await request(app)
-        .patch(`/exercises/${exerciseToUpdate.id}`)
+        .patch(`/api/exercises/${exerciseToUpdate.id}`)
         .set("Authorization", token)
         .send({
           name: "Incline Bench Press",
@@ -313,10 +313,10 @@ describe("Exercise routes", () => {
     });
   });
 
-  describe("DELETE /exercises/:exerciseId", () => {
+  describe("DELETE /api/exercises/:exerciseId", () => {
     it("should return 400 for invalid exerciseId param", async () => {
       const res = await request(app)
-        .delete("/exercises/not-a-number")
+        .delete("/api/exercises/not-a-number")
         .set("Authorization", token);
 
       expect(res.status).toBe(400);
@@ -325,7 +325,7 @@ describe("Exercise routes", () => {
 
     it("should return 404 if exercise not found", async () => {
       const res = await request(app)
-        .delete(`/exercises/999999`) // ID that doesn't exist
+        .delete(`/api/exercises/999999`) // ID that doesn't exist
         .set("Authorization", token);
 
       expect(res.status).toBe(404);
@@ -343,7 +343,7 @@ describe("Exercise routes", () => {
       });
 
       const res = await request(app)
-        .delete(`/exercises/${exerciseToDelete.id}`)
+        .delete(`/api/exercises/${exerciseToDelete.id}`)
         .set("Authorization", token);
 
       expect(res.status).toBe(200);

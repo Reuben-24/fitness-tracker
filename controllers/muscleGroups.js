@@ -5,7 +5,7 @@ exports.readAllForUser = async (req, res) => {
   const muscleGroups = await prisma.muscleGroup.findMany({
     where: { userId },
     include: { exercises: true },
-    orderBy: { name: 'asc' },
+    orderBy: { name: "asc" },
   });
   res.status(200).json({
     message: "Muscle Groups successfully retrieved",

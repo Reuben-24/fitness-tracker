@@ -5,7 +5,7 @@ exports.readAllForUser = async (req, res) => {
   const exercises = await prisma.exercise.findMany({
     where: { userId },
     include: { muscleGroups: true },
-    orderBy: { name: 'asc' },
+    orderBy: { name: "asc" },
   });
   res.status(200).json({
     message: "Exercises successfully retrieved",

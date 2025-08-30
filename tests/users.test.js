@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 const { generateTestJWT } = require("./helpers/jwt");
 
 describe("Users routes", () => {
-  describe("POST /users", () => {
+  describe("POST /api/users", () => {
     let createdUser;
     afterAll(async () => {
       await prisma.user.deleteMany({ where: { id: createdUser?.id } });
@@ -14,7 +14,7 @@ describe("Users routes", () => {
 
     it("should create a user successfully (happy path)", async () => {
       const res = await request(app)
-        .post("/users")
+        .post("/api/users")
         .send({
           firstName: "John",
           lastName: "Doe",
@@ -35,7 +35,7 @@ describe("Users routes", () => {
     });
 
     it("should fail if required fields are missing", async () => {
-      const res = await request(app).post("/users").send({
+      const res = await request(app).post("/api/users").send({
         firstName: "Jane",
         email: "jane@example.com",
         password: "password123",
@@ -46,7 +46,7 @@ describe("Users routes", () => {
     });
 
     it("should fail if email is already taken", async () => {
-      const res = await request(app).post("/users").send({
+      const res = await request(app).post("/api/users").send({
         firstName: "Duplicate",
         lastName: "User",
         email: "john.doe@example.com", // same as happy path
@@ -61,7 +61,7 @@ describe("Users routes", () => {
     });
   });
 
-  describe("GET /users/:userId", () => {
+  describe("GET /api/users/:userId", () => {
     let user;
     let token;
 
@@ -93,7 +93,7 @@ describe("Users routes", () => {
 
     it("should retrieve the user when authorized", async () => {
       const res = await request(app)
-        .get(`/users/${user.id}`)
+        .get(`/api/users/${user.id}`)
         .set("Authorization", token);
 
       expect(res.status).toBe(200);
@@ -102,7 +102,7 @@ describe("Users routes", () => {
     });
 
     it("should return 401 if no token is provided", async () => {
-      const res = await request(app).get(`/users/${user.id}`);
+      const res = await request(app).get(`/api/users/${user.id}`);
       expect(res.status).toBe(401);
       expect(res.body).toHaveProperty("error");
     });
@@ -124,7 +124,7 @@ describe("Users routes", () => {
       });
 
       const res = await request(app)
-        .get(`/users/${otherUser.id}`)
+        .get(`/api/users/${otherUser.id}`)
         .set("Authorization", token);
 
       expect(res.status).toBe(403); // because authorizeParam() should block mismatched IDs
@@ -137,7 +137,7 @@ describe("Users routes", () => {
     });
   });
 
-  describe("PATCH /users/:userId", () => {
+  describe("PATCH /api/users/:userId", () => {
     let user;
     let token;
 
@@ -169,7 +169,7 @@ describe("Users routes", () => {
 
     it("should update all fields successfully", async () => {
       const res = await request(app)
-        .patch(`/users/${user.id}`)
+        .patch(`/api/users/${user.id}`)
         .set("Authorization", token)
         .send({
           firstName: "Johnny",
@@ -198,7 +198,7 @@ describe("Users routes", () => {
 
     it("should update a single field", async () => {
       const res = await request(app)
-        .patch(`/users/${user.id}`)
+        .patch(`/api/users/${user.id}`)
         .set("Authorization", token)
         .send({
           lastName: "Smith",
@@ -211,7 +211,7 @@ describe("Users routes", () => {
 
     it("should reject invalid gender", async () => {
       const res = await request(app)
-        .patch(`/users/${user.id}`)
+        .patch(`/api/users/${user.id}`)
         .set("Authorization", token)
         .send({
           gender: "not-a-gender",
@@ -240,7 +240,7 @@ describe("Users routes", () => {
       const otherToken = "Bearer " + generateTestJWT(other.id);
 
       const res = await request(app)
-        .patch(`/users/${user.id}`)
+        .patch(`/api/users/${user.id}`)
         .set("Authorization", otherToken)
         .send({ firstName: "Hacker" });
 
@@ -252,7 +252,7 @@ describe("Users routes", () => {
     });
   });
 
-  describe("DELETE /users/:userId", () => {
+  describe("DELETE /api/users/:userId", () => {
     let user;
     let token;
 
@@ -284,7 +284,7 @@ describe("Users routes", () => {
 
     it("should delete the user successfully", async () => {
       const res = await request(app)
-        .delete(`/users/${user.id}`)
+        .delete(`/api/users/${user.id}`)
         .set("Authorization", token);
 
       expect(res.status).toBe(200);
@@ -298,7 +298,7 @@ describe("Users routes", () => {
     });
 
     it("should return 401 if not logged in", async () => {
-      const res = await request(app).delete(`/users/${user.id}`);
+      const res = await request(app).delete(`/api/users/${user.id}`);
 
       expect(res.status).toBe(401);
       expect(res.body).toHaveProperty("error");
@@ -306,7 +306,7 @@ describe("Users routes", () => {
 
     it("should return 400 for invalid userId param", async () => {
       const res = await request(app)
-        .delete("/users/invalid-id")
+        .delete("/api/users/invalid-id")
         .set("Authorization", token);
 
       expect(res.status).toBe(400); // assuming your validator returns 400
@@ -331,7 +331,7 @@ describe("Users routes", () => {
       const otherToken = "Bearer " + generateTestJWT(otherUser.id);
 
       const res = await request(app)
-        .delete(`/users/${user.id}`)
+        .delete(`/api/users/${user.id}`)
         .set("Authorization", otherToken);
 
       expect(res.status).toBe(403);

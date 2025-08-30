@@ -35,16 +35,16 @@ describe("Workout Template routes", () => {
     await prisma.$disconnect();
   });
 
-  describe("GET /workout-templates", () => {
+  describe("GET /api/workout-templates", () => {
     it("returns 401 if user is unauthenticated", async () => {
-      const res = await request(app).get("/muscle-groups");
+      const res = await request(app).get("/api/muscle-groups");
       expect(res.status).toBe(401);
       expect(res.body.error).toBeDefined();
     });
 
     it("returns an empty array if user has no workout templates", async () => {
       const res = await request(app)
-        .get("/muscle-groups")
+        .get("/api/muscle-groups")
         .set(authHeader)
         .expect(200);
 
@@ -93,7 +93,7 @@ describe("Workout Template routes", () => {
       });
 
       const res = await request(app)
-        .get("/workout-templates")
+        .get("/api/workout-templates")
         .set(authHeader)
         .expect(200);
 
@@ -122,23 +122,23 @@ describe("Workout Template routes", () => {
     });
   });
 
-  describe("GET /workout-templates/:workoutTemplateId", () => {
+  describe("GET /api/workout-templates/:workoutTemplateId", () => {
     it("returns 401 if user is unauthenticated", async () => {
-      const res = await request(app).get("/workout-templates/1");
+      const res = await request(app).get("/api/workout-templates/1");
       expect(res.status).toBe(401);
       expect(res.body.error).toBeDefined();
     });
 
     it("returns 400 if workoutTemplateId is invalid", async () => {
       const res = await request(app)
-        .get("/workout-templates/cat")
+        .get("/api/workout-templates/cat")
         .set(authHeader);
       expect(res.status).toBe(400);
     });
 
     it("returns 404 if the workout template does not exist", async () => {
       const res = await request(app)
-        .get("/workout-templates/999999")
+        .get("/api/workout-templates/999999")
         .set(authHeader)
         .expect(404);
 
@@ -186,7 +186,7 @@ describe("Workout Template routes", () => {
       });
 
       const res = await request(app)
-        .get(`/workout-templates/${template.id}`)
+        .get(`/api/workout-templates/${template.id}`)
         .set(authHeader);
 
       expect(res.status).toBe(200);
@@ -206,10 +206,10 @@ describe("Workout Template routes", () => {
     });
   });
 
-  describe("POST /workout-templates", () => {
+  describe("POST /api/workout-templates", () => {
     it("returns 401 if user is unauthenticated", async () => {
       const res = await request(app)
-        .post("/workout-templates")
+        .post("/api/workout-templates")
         .send({ name: "Upper Body", templateExercises: [] });
 
       expect(res.status).toBe(401);
@@ -219,7 +219,7 @@ describe("Workout Template routes", () => {
     it("returns 400 if required fields are missing or invalid", async () => {
       // Missing name
       let res = await request(app)
-        .post("/workout-templates")
+        .post("/api/workout-templates")
         .set(authHeader)
         .send({ templateExercises: [] });
 
@@ -228,7 +228,7 @@ describe("Workout Template routes", () => {
 
       // Invalid templateExercises (not an array)
       res = await request(app)
-        .post("/workout-templates")
+        .post("/api/workout-templates")
         .set(authHeader)
         .send({ name: "Upper Body", templateExercises: "not-an-array" });
 
@@ -269,7 +269,7 @@ describe("Workout Template routes", () => {
       };
 
       const res = await request(app)
-        .post("/workout-templates")
+        .post("/api/workout-templates")
         .set(authHeader)
         .send(payload)
         .expect(201);
@@ -294,14 +294,14 @@ describe("Workout Template routes", () => {
 
       // Create first template
       await request(app)
-        .post("/workout-templates")
+        .post("/api/workout-templates")
         .set(authHeader)
         .send(payload)
         .expect(201);
 
       // Attempt to create another template with the same name for the same user
       const res = await request(app)
-        .post("/workout-templates")
+        .post("/api/workout-templates")
         .set(authHeader)
         .send(payload);
 
@@ -331,7 +331,7 @@ describe("Workout Template routes", () => {
 
       // Should succeed for the second user
       const res = await request(app)
-        .post("/workout-templates")
+        .post("/api/workout-templates")
         .set(authHeader2)
         .send(payload)
         .expect(201);
@@ -343,7 +343,7 @@ describe("Workout Template routes", () => {
     });
   });
 
-  describe("PATCH /workout-templates/:workoutTemplateId", () => {
+  describe("PATCH /api/workout-templates/:workoutTemplateId", () => {
     let template, ex1, ex2;
 
     beforeEach(async () => {
@@ -381,7 +381,7 @@ describe("Workout Template routes", () => {
 
     it("returns 401 if user is unauthenticated", async () => {
       const res = await request(app)
-        .patch("/workout-templates/1")
+        .patch("/api/workout-templates/1")
         .send({ name: "Updated" });
 
       expect(res.status).toBe(401);
@@ -390,7 +390,7 @@ describe("Workout Template routes", () => {
 
     it("returns 400 if workoutTemplateId is invalid", async () => {
       const res = await request(app)
-        .patch("/workout-templates/not-a-number")
+        .patch("/api/workout-templates/not-a-number")
         .set(authHeader)
         .send({ name: "Updated" });
 
@@ -400,7 +400,7 @@ describe("Workout Template routes", () => {
 
     it("returns 404 if the workout template does not exist for this user", async () => {
       const res = await request(app)
-        .patch("/workout-templates/999999")
+        .patch("/api/workout-templates/999999")
         .set(authHeader)
         .send({ name: "Updated" });
 
@@ -416,7 +416,7 @@ describe("Workout Template routes", () => {
 
       // Invalid sets (must be positive integer)
       const res = await request(app)
-        .patch(`/workout-templates/${template.id}`)
+        .patch(`/api/workout-templates/${template.id}`)
         .set(authHeader)
         .send({
           templateExercises: [
@@ -432,7 +432,7 @@ describe("Workout Template routes", () => {
       const payload = { name: "Upper Body Updated" };
 
       const res = await request(app)
-        .patch(`/workout-templates/${template.id}`)
+        .patch(`/api/workout-templates/${template.id}`)
         .set(authHeader)
         .send(payload)
         .expect(200);
@@ -448,7 +448,7 @@ describe("Workout Template routes", () => {
       const payload = { templateExercises: [] };
 
       const res = await request(app)
-        .patch(`/workout-templates/${template.id}`)
+        .patch(`/api/workout-templates/${template.id}`)
         .set(authHeader)
         .send(payload)
         .expect(200);
@@ -464,7 +464,7 @@ describe("Workout Template routes", () => {
       };
 
       const res = await request(app)
-        .patch(`/workout-templates/${template.id}`)
+        .patch(`/api/workout-templates/${template.id}`)
         .set(authHeader)
         .send(payload)
         .expect(200);
@@ -478,16 +478,16 @@ describe("Workout Template routes", () => {
     });
   });
 
-  describe("DELETE /workout-templates/:workoutTemplateId", () => {
+  describe("DELETE /api/workout-templates/:workoutTemplateId", () => {
     it("returns 401 if user is unauthenticated", async () => {
-      const res = await request(app).delete("/workout-templates/1");
+      const res = await request(app).delete("/api/workout-templates/1");
       expect(res.status).toBe(401);
       expect(res.body.error).toBeDefined();
     });
 
     it("returns 400 if workoutTemplateId is invalid", async () => {
       const res = await request(app)
-        .delete("/workout-templates/invalid-id")
+        .delete("/api/workout-templates/invalid-id")
         .set(authHeader);
       expect(res.status).toBe(400);
       expect(res.body.errors).toBeDefined();
@@ -495,7 +495,7 @@ describe("Workout Template routes", () => {
 
     it("returns 404 if the workout template does not exist for the user", async () => {
       const res = await request(app)
-        .delete("/workout-templates/999999")
+        .delete("/api/workout-templates/999999")
         .set(authHeader);
       expect(res.status).toBe(404);
       expect(res.body.error).toBe("Workout Template not found");
@@ -521,7 +521,7 @@ describe("Workout Template routes", () => {
       });
 
       const res = await request(app)
-        .delete(`/workout-templates/${template.id}`)
+        .delete(`/api/workout-templates/${template.id}`)
         .set(authHeader)
         .expect(200);
 
@@ -555,7 +555,7 @@ describe("Workout Template routes", () => {
       });
 
       const res = await request(app)
-        .delete(`/workout-templates/${template.id}`)
+        .delete(`/api/workout-templates/${template.id}`)
         .set(authHeader);
 
       expect(res.status).toBe(404);

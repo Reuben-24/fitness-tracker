@@ -34,19 +34,19 @@ describe("Exercise routes", () => {
     await prisma.$disconnect();
   });
 
-  describe("GET /muscle-groups", () => {
+  describe("GET /api/muscle-groups", () => {
     let muscleGroup1;
     let muscleGroup2;
 
     it("returns 401 if user is unauthenticated", async () => {
-      const res = await request(app).get("/muscle-groups");
+      const res = await request(app).get("/api/muscle-groups");
       expect(res.status).toBe(401);
       expect(res.body.error).toBeDefined();
     });
 
     it("returns an empty array if user has no muscle groups", async () => {
       const res = await request(app)
-        .get("/muscle-groups")
+        .get("/api/muscle-groups")
         .set(authHeader)
         .expect(200);
 
@@ -74,7 +74,7 @@ describe("Exercise routes", () => {
       });
 
       const res = await request(app)
-        .get("/muscle-groups")
+        .get("/api/muscle-groups")
         .set(authHeader)
         .expect(200);
 
@@ -97,7 +97,7 @@ describe("Exercise routes", () => {
     });
   });
 
-  describe("GET /muscle-groups/:muscleGroupId", () => {
+  describe("GET /api/muscle-groups/:muscleGroupId", () => {
     let muscleGroup;
 
     beforeEach(async () => {
@@ -116,18 +116,18 @@ describe("Exercise routes", () => {
     });
 
     it("returns 401 if user not authenticated", async () => {
-      const res = await request(app).get(`/muscle-groups/${muscleGroup.id}`);
+      const res = await request(app).get(`/api/muscle-groups/${muscleGroup.id}`);
       expect(res.status).toBe(401);
     });
 
     it("returns 400 if muscleGroupId is invalid", async () => {
-      const res = await request(app).get("/muscle-groups/cat").set(authHeader);
+      const res = await request(app).get("/api/muscle-groups/cat").set(authHeader);
       expect(res.status).toBe(400);
     });
 
     it("returns 404 if muscle group does not exist", async () => {
       const res = await request(app)
-        .get(`/muscle-groups/999999`)
+        .get(`/api/muscle-groups/999999`)
         .set(authHeader);
       expect(res.status).toBe(404);
       expect(res.body.error).toBe("Muscle Group not found");
@@ -135,7 +135,7 @@ describe("Exercise routes", () => {
 
     it("returns 200 and the muscle group on success", async () => {
       const res = await request(app)
-        .get(`/muscle-groups/${muscleGroup.id}`)
+        .get(`/api/muscle-groups/${muscleGroup.id}`)
         .set(authHeader);
       expect(res.status).toBe(200);
       expect(res.body.message).toBe("Muscle Group successfully retrieved");
@@ -145,7 +145,7 @@ describe("Exercise routes", () => {
     });
   });
 
-  describe("POST /muscle-groups", () => {
+  describe("POST /api/muscle-groups", () => {
     let otherUser;
     let otherAuthHeader;
 
@@ -181,14 +181,14 @@ describe("Exercise routes", () => {
 
     it("returns 401 if user not authenticated", async () => {
       const res = await request(app)
-        .post("/muscle-groups")
+        .post("/api/muscle-groups")
         .send({ name: "Legs" });
       expect(res.status).toBe(401);
     });
 
     it("returns 400 if request body is invalid", async () => {
       const res = await request(app)
-        .post("/muscle-groups")
+        .post("/api/muscle-groups")
         .set(authHeader)
         .send({}); // missing required 'name'
       expect(res.status).toBe(400);
@@ -196,7 +196,7 @@ describe("Exercise routes", () => {
 
     it("creates a muscle group and returns 201 on success", async () => {
       const res = await request(app)
-        .post("/muscle-groups")
+        .post("/api/muscle-groups")
         .set(authHeader)
         .send({ name: "Back" });
 
@@ -222,7 +222,7 @@ describe("Exercise routes", () => {
       });
 
       const res = await request(app)
-        .post("/muscle-groups")
+        .post("/api/muscle-groups")
         .set(authHeader)
         .send({ name: "Chest" });
 
@@ -232,14 +232,14 @@ describe("Exercise routes", () => {
     it("allows duplicate muscle group names across different users", async () => {
       // User A creates "Arms"
       await request(app)
-        .post("/muscle-groups")
+        .post("/api/muscle-groups")
         .set(authHeader)
         .send({ name: "Arms" })
         .expect(201);
 
       // User B creates "Arms"
       const res = await request(app)
-        .post("/muscle-groups")
+        .post("/api/muscle-groups")
         .set(otherAuthHeader)
         .send({ name: "Arms" });
 
@@ -249,7 +249,7 @@ describe("Exercise routes", () => {
     });
   });
 
-  describe("PATCH /muscle-groups/:muscleGroupId", () => {
+  describe("PATCH /api/muscle-groups/:muscleGroupId", () => {
     let muscleGroup;
 
     beforeEach(async () => {
@@ -265,7 +265,7 @@ describe("Exercise routes", () => {
 
     it("returns 401 if user not authenticated", async () => {
       const res = await request(app)
-        .patch(`/muscle-groups/${muscleGroup.id}`)
+        .patch(`/api/muscle-groups/${muscleGroup.id}`)
         .send({ name: "Updated Shoulders" });
 
       expect(res.status).toBe(401);
@@ -273,7 +273,7 @@ describe("Exercise routes", () => {
 
     it("returns 400 if params are invalid", async () => {
       const res = await request(app)
-        .patch("/muscle-groups/not-a-valid-id")
+        .patch("/api/muscle-groups/not-a-valid-id")
         .set(authHeader)
         .send({ name: "Updated Shoulders" });
 
@@ -282,7 +282,7 @@ describe("Exercise routes", () => {
 
     it("returns 400 if body is invalid", async () => {
       const res = await request(app)
-        .patch(`/muscle-groups/${muscleGroup.id}`)
+        .patch(`/api/muscle-groups/${muscleGroup.id}`)
         .set(authHeader)
         .send({ name: "" }); // invalid name
 
@@ -291,7 +291,7 @@ describe("Exercise routes", () => {
 
     it("returns 404 if muscle group does not exist for user", async () => {
       const res = await request(app)
-        .patch(`/muscle-groups/999999`) // non-existent ID
+        .patch(`/api/muscle-groups/999999`) // non-existent ID
         .set(authHeader)
         .send({ name: "Updated" });
 
@@ -301,7 +301,7 @@ describe("Exercise routes", () => {
 
     it("successfully updates a muscle group", async () => {
       const res = await request(app)
-        .patch(`/muscle-groups/${muscleGroup.id}`)
+        .patch(`/api/muscle-groups/${muscleGroup.id}`)
         .set(authHeader)
         .send({ name: "Updated Shoulders" });
 
@@ -337,7 +337,7 @@ describe("Exercise routes", () => {
       });
 
       const res = await request(app)
-        .patch(`/muscle-groups/${otherUserMuscleGroup.id}`)
+        .patch(`/api/muscle-groups/${otherUserMuscleGroup.id}`)
         .set(authHeader)
         .send({ name: "Attempted Hack" });
 
@@ -356,7 +356,7 @@ describe("Exercise routes", () => {
     });
   });
 
-  describe("DELETE /muscle-groups/:muscleGroupId", () => {
+  describe("DELETE /api/muscle-groups/:muscleGroupId", () => {
     let muscleGroup;
 
     beforeEach(async () => {
@@ -371,13 +371,13 @@ describe("Exercise routes", () => {
     });
 
     it("returns 401 if user not authenticated", async () => {
-      const res = await request(app).delete(`/muscle-groups/${muscleGroup.id}`);
+      const res = await request(app).delete(`/api/muscle-groups/${muscleGroup.id}`);
       expect(res.status).toBe(401);
     });
 
     it("returns 400 if params are invalid", async () => {
       const res = await request(app)
-        .delete("/muscle-groups/!?<>*&")
+        .delete("/api/muscle-groups/!?<>*&")
         .set(authHeader);
 
       expect(res.status).toBe(400);
@@ -385,7 +385,7 @@ describe("Exercise routes", () => {
 
     it("returns 404 if muscle group does not exist for user", async () => {
       const res = await request(app)
-        .delete("/muscle-groups/999999") // non-existent
+        .delete("/api/muscle-groups/999999") // non-existent
         .set(authHeader);
 
       expect(res.status).toBe(404);
@@ -394,7 +394,7 @@ describe("Exercise routes", () => {
 
     it("successfully deletes a muscle group", async () => {
       const res = await request(app)
-        .delete(`/muscle-groups/${muscleGroup.id}`)
+        .delete(`/api/muscle-groups/${muscleGroup.id}`)
         .set(authHeader);
 
       expect(res.status).toBe(200);
@@ -428,7 +428,7 @@ describe("Exercise routes", () => {
       });
 
       const res = await request(app)
-        .delete(`/muscle-groups/${otherUserMuscleGroup.id}`)
+        .delete(`/api/muscle-groups/${otherUserMuscleGroup.id}`)
         .set(authHeader);
 
       expect(res.status).toBe(404);

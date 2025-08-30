@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 const { createTestRefreshJWT } = require("./helpers/jwt");
 
 describe("Auth routes", () => {
-  describe("POST /auth/login", () => {
+  describe("POST /api/auth/login", () => {
     let testUser;
 
     beforeAll(async () => {
@@ -34,7 +34,7 @@ describe("Auth routes", () => {
 
     it("Correctly handles happy path", async () => {
       const res = await request(app)
-        .post("/auth/login")
+        .post("/api/auth/login")
         .send({ email: "test@example.com", password: "password123" });
 
       expect(res.status).toBe(200);
@@ -61,7 +61,7 @@ describe("Auth routes", () => {
 
     it("Handles invalid password", async () => {
       const res = await request(app)
-        .post("/auth/login")
+        .post("/api/auth/login")
         .send({ email: "test@example.com", password: "wrongpassword" });
 
       expect(res.status).toBe(401);
@@ -70,7 +70,7 @@ describe("Auth routes", () => {
 
     it("Handles invalid email", async () => {
       const res = await request(app)
-        .post("/auth/login")
+        .post("/api/auth/login")
         .send({ email: "notfound@example.com", password: "password123" });
 
       expect(res.status).toBe(401);
@@ -78,7 +78,7 @@ describe("Auth routes", () => {
     });
   });
 
-  describe("POST /auth/logout", () => {
+  describe("POST /api/auth/logout", () => {
     let testUser;
     let refreshToken;
 
@@ -108,7 +108,7 @@ describe("Auth routes", () => {
     it("should delete the refresh token and return success", async () => {
       console.log(refreshToken);
       const res = await request(app)
-        .post("/auth/logout")
+        .post("/api/auth/logout")
         .send({ refreshToken });
 
       expect(res.status).toBe(200);
@@ -117,7 +117,7 @@ describe("Auth routes", () => {
 
     it("should fail if token is already deleted or invalid", async () => {
       const res = await request(app)
-        .post("/auth/logout")
+        .post("/api/auth/logout")
         .send({ refreshToken });
 
       expect(res.status).toBe(401);
@@ -125,14 +125,14 @@ describe("Auth routes", () => {
     });
 
     it("should fail with missing refresh token", async () => {
-      const res = await request(app).post("/auth/logout").send({});
+      const res = await request(app).post("/api/auth/logout").send({});
 
       expect(res.status).toBe(400);
       expect(res.body).toHaveProperty("errors");
     });
   });
 
-  describe("POST /auth/refresh-token", () => {
+  describe("POST /api/auth/refresh-token", () => {
     let testUser;
     let refreshToken;
 
@@ -161,7 +161,7 @@ describe("Auth routes", () => {
 
     it("should return a new access token with a valid refresh token", async () => {
       const res = await request(app)
-        .post("/auth/refresh-token")
+        .post("/api/auth/refresh-token")
         .send({ refreshToken });
 
       expect(res.status).toBe(200);
@@ -178,7 +178,7 @@ describe("Auth routes", () => {
 
     it("should fail with an invalid refresh token", async () => {
       const res = await request(app)
-        .post("/auth/refresh-token")
+        .post("/api/auth/refresh-token")
         .send({ refreshToken: "invalidtoken" });
 
       expect(res.status).toBe(401);
@@ -186,7 +186,7 @@ describe("Auth routes", () => {
     });
 
     it("should fail with missing refresh token", async () => {
-      const res = await request(app).post("/auth/refresh-token").send({});
+      const res = await request(app).post("/api/auth/refresh-token").send({});
 
       expect(res.status).toBe(400);
       expect(res.body).toHaveProperty("errors");
