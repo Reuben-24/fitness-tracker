@@ -179,7 +179,7 @@ A fitness tracker REST API, allowing users to log workouts, manage exercises, tr
 
 ## Database Schema
 
-![Entity Relationship Diagram](entity-relationship-diagram.png)
+![Entity Relationship Diagram](/entity-relationship-diagram.png)
 
 ---
 
