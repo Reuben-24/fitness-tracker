@@ -1,4 +1,4 @@
-const prisma = require("../prisma/prisma");
+const prisma = require("../../prisma/prisma");
 
 exports.readAllForUser = async (req, res) => {
   const userId = req.user.id;

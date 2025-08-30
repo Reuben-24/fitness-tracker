@@ -1,5 +1,5 @@
 const bcrypt = require("bcrypt");
-const prisma = require("../prisma/prisma");
+const prisma = require("../../prisma/prisma");
 
 exports.read = async (req, res) => {
   const userId = req.user.id;

@@ -4,6 +4,7 @@
 
 ## Ideas
 
+- [ ] Add swagger/openAPI docs
 - [ ] Add pagination to /exercises
 - [ ] Implement /me/exercises routes
 - [ ] Add workout metrics endpoint

@@ -1,8 +1,8 @@
 const request = require("supertest");
 const bcrypt = require("bcrypt");
-const app = require("../app");
-const prisma = require("../prisma/prisma");
-const { generateTestJWT } = require("./helpers/jwt");
+const app = require("../../src/app");
+const prisma = require("../../prisma/prisma");
+const { generateTestJWT } = require("../helpers/jwt");
 
 describe("Exercise routes", () => {
   let user;

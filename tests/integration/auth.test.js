@@ -1,9 +1,9 @@
 const request = require("supertest");
-const app = require("../app");
-const prisma = require("../prisma/prisma");
+const app = require("../../src/app");
+const prisma = require("../../prisma/prisma");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { createTestRefreshJWT } = require("./helpers/jwt");
+const { createTestRefreshJWT } = require("../helpers/jwt");
 
 describe("Auth routes", () => {
   describe("POST /api/auth/login", () => {

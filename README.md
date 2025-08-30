@@ -13,19 +13,93 @@ A fitness tracker REST API, allowing users to log workouts, manage exercises, tr
 
 ## Architecture
 
-### **Framework:** Express.js
+### Back-End Framework
+- Built with **JavaScript** and **Express.js**
+- Uses Express's middleware and routing functionality for modular routes/middleware/error-handling
 
-- **Framework:** Express.js (modular routes/controllers/middlewares/validators)
-- **Database/ORM** Prisma (PostgreSQL)
-- **Authentication** JWT (access & refresh), bcrypt for password hashing
-- **Validation:** zod / express-validator (choose one)
-- **Docs:** OpenAPI/Swagger (served at `/docs`)
-- **Testing:** Jest + Supertest
-- **Misc:** Helmet, CORS, rate limiting, request logging
+### Data Management
+- **PostgreSQL:** Database Management System
+- **Prisma:** Database configuration and Schema management 
+- **Prisma CLient:** Object-Relational Mapping
+
+### Authentication
+- **JSON Web Tokens:** 
+  - Short-lived access tokens for secure request authentication
+  - Longer-lived, hashed reresh tokens temporarily stored in databse for secure persistent login
+- **Bcrypt:** Password and refresh-token hashing
+
+### Validation
+- **Express-validator:**
+  - Request validation and sanitisation
+  - Clear error responses for invalid requests
+
+### Testing
+- **Jest:** Testing framework
+- **Supertest:** Simulate HTTP requests to facilitate integration testing
+
+### Environment
+- .env file required for managing environment variables
+- **Dotenv:** Secure injection of environment variables at runtime
+
+### Misc
+- **Prettier:** Code formatting
 
 ---
 
 ## Project Structure
+
+```text
+  .
+  ├── .env
+  ├── .gitignore
+  ├── app.js
+  ├── controllers
+  │   ├── auth.js
+  │   ├── exercises.js
+  │   ├── muscleGroups.js
+  │   ├── users.js
+  │   ├── workoutSessions.js
+  │   └── workoutTemplates.js
+  ├── middleware
+  │   ├── asyncErrorHandler.js
+  │   ├── authenticate.js
+  │   ├── authorize.js
+  │   ├── errorHandler.js
+  │   └── validate.js
+  ├── package-lock.json
+  ├── package.json
+  ├── prisma
+  │   ├── prisma.js
+  │   └── schema.prisma
+  ├── README.md
+  ├── routes
+  │   ├── auth.js
+  │   ├── exercises.js
+  │   ├── muscleGroups.js
+  │   ├── users.js
+  │   ├── workoutSessions.js
+  │   └── workoutTemplates.js
+  ├── server.js
+  ├── tests
+  │   ├── helpers
+  │   │   └── jwt.js
+  │   └── integration
+  │       ├── auth.test.js
+  │       ├── exercises.test.js
+  │       ├── muscleGroups.test.js
+  │       ├── users.test.js
+  │       ├── workoutSessions.test.js
+  │       └── workoutTemplates.test.js
+  ├── TODO.md
+  └── validators
+      ├── auth.js
+      ├── common.js
+      ├── exercises.js
+      ├── muscleGroups.js
+      ├── users.js
+      ├── workoutSessions.js
+      └── workoutTemplates.js
+```
 
 ---
 
