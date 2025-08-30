@@ -55,7 +55,9 @@ A fitness tracker REST API, allowing users to log workouts, manage exercises, tr
 
 ### Misc
 
+- **Helmet:** Adds HTTP headers to secure the app
 - **Prettier:** Code formatting
+- **Health Check Endpoint:** Simple GET `/health` route to verify API is running
 
 ---
 
@@ -168,6 +170,10 @@ A fitness tracker REST API, allowing users to log workouts, manage exercises, tr
 - `GET /workout-sessions/:workoutSessionId` — Get session with nested exercises & sets
 - `PATCH /workout-sessions/:workoutSessionId` — Update session
 - `DELETE /workout-sessions/:workoutSessionId` — Delete session
+
+### Health Check
+
+- `GET /health` — Returns `200 OK` if API is running
 
 ---
 
